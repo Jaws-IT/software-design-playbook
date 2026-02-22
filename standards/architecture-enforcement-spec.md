@@ -89,7 +89,7 @@ Infrastructure must not encode business intent in its name.
 
 4. Rationale
 
-This doctrine enforces:
+This doctrine enforces: 
 
 - Clean onion boundaries
 - Replaceable infrastructure
