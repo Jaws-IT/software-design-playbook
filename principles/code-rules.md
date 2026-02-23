@@ -1,185 +1,188 @@
-# CODE RULES
+# Code Rules
 
-*Version: 2.0 | Last Updated: January 17, 2026 | Enhanced with Clean Code Practices*
+Status: Authoritative  
+Scope: All bounded contexts  
+Applies to: Domain, Application, Integration, Infrastructure
 
-## Summary
-
-- **Objects Hide Data, Expose Behavior** - No getters/setters, only behavior
-- **Single Log Point** - Only log at the outermost container
-- **WET over DRY** - Write Everything Twice before abstracting
-- **100% Test Coverage** - All classes and endpoints must have tests
-- **No Exceptions for Business Logic** - Use Result types for expected errors
-- **Functional Style** - Always RETURN values, PURE functions, no SIDE EFFECTS
-- **Test Behavior Only** - Never test private methods or internal state
-- **Small Functions** - Functions should be 5-20 lines maximum
-- **Command Query Separation** - Functions either DO something or RETURN something, never both
-- **Function Arguments** - Minimize arguments (0-2 ideal, 3+ requires justification)
+These rules define coding-level constraints that preserve architectural integrity.
 
 ---
 
-## Detailed Code Rules
+# 1. Domain Purity
 
-### Objects Hide Data, Expose Behavior
-[Previous "No Getters" content enhanced with Clean Code's objects vs data structures]
+Code inside domain/ MUST:
 
-### Small Functions (From Clean Code)
-Functions should be small - ideally 5-20 lines maximum. If a function is longer, it's probably doing more than one thing.
-```kotlin
-// ❌ Long function doing multiple things (45+ lines)
-fun processOrder(orderData: Map<String, Any>): OrderResult {
-    // Validation (8 lines)
-    if (orderData["customerId"] == null) return OrderResult.error("Missing customer")
-    if (orderData["items"] == null) return OrderResult.error("Missing items") 
-    val items = orderData["items"] as? List<*> ?: return OrderResult.error("Invalid items")
-    if (items.isEmpty()) return OrderResult.error("Empty order")
-    // ... more validation
-    
-    // Business logic (15 lines)
-    var total = 0.0
-    val validItems = mutableListOf<Item>()
-    for (itemData in items) {
-        val item = itemData as Map<String, Any>
-        val price = item["price"] as? Double ?: return OrderResult.error("Invalid price")
-        val quantity = item["quantity"] as? Int ?: return OrderResult.error("Invalid quantity")
-        total += price * quantity
-        validItems.add(Item(price, quantity))
-    }
-    // Apply discounts, calculate tax, etc...
-    
-    // Persistence (10 lines)
-    val customer = customerRepository.findById(customerId)
-    val order = Order(customer, validItems, total)
-    try {
-        orderRepository.save(order)
-        inventoryService.reserve(validItems)
-        emailService.sendConfirmation(order)
-    } catch (e: Exception) {
-        return OrderResult.error("Failed to save: ${e.message}")
-    }
-    
-    return OrderResult.success(order)
-}
+- Contain business logic only.
+- Be framework-independent.
+- Be free of infrastructure concerns.
 
-// ✅ Broken into small, focused functions
-fun processOrder(orderData: Map<String, Any>): Either<OrderError, Order> {
-    return validateOrderData(orderData)
-        .flatMap { createOrderFromData(it) }
-        .flatMap { saveOrderAndNotify(it) }
-}
+Code inside domain/ MUST NOT depend on:
 
-private fun validateOrderData(data: Map<String, Any>): Either<OrderError, ValidatedOrderData> {
-    // 3-5 lines of focused validation
-}
+- org.springframework..
+- jakarta.persistence..
+- javax.persistence..
+- org.hibernate..
+- web frameworks
+- messaging frameworks
+- database frameworks
+- infrastructure packages
 
-private fun createOrderFromData(data: ValidatedOrderData): Either<OrderError, Order> {
-    // 5-8 lines of order creation logic
-}
-
-private fun saveOrderAndNotify(order: Order): Either<OrderError, Order> {
-    // 4-6 lines of persistence and notification
-}
-```
-
-**Benefits of Small Functions:**
-- Easy to test each piece in isolation
-- Easy to understand and reason about
-- Easy to reuse and compose
-- Easy to name meaningfully
-
-### Command Query Separation (From Clean Code)
-Functions should either **do something** (command) or **return something** (query), but never both.
-```kotlin
-// ❌ Violates Command Query Separation
-fun setAndReturnAge(person: Person, age: Int): Int {
-    person.age = age        // Command (doing something)
-    return person.age       // Query (returning something)
-}
-
-// Usage creates confusion:
-if (setAndReturnAge(person, 25) > 18) {  // Is this checking or setting?
-    // What's happening here?
-}
-
-// ✅ Separate commands from queries
-fun setAge(person: Person, age: Int): Unit {  // Command - does something
-    person.age = age
-}
-
-fun getAge(person: Person): Int {             // Query - returns something
-    return person.age
-}
-
-// ✅ Even better - immutable approach
-fun withAge(person: Person, age: Int): Person {  // Pure function
-    return person.copy(age = age)
-}
-
-fun age(person: Person): Int {                   // Query
-    return person.age
-}
-```
-
-### Function Arguments (From Clean Code)
-The ideal number of arguments for a function is zero. Next comes one, followed closely by two. Three arguments should be avoided where possible, and more than three requires special justification.
-```kotlin
-// ❌ Too many arguments
-fun createUser(
-    firstName: String,
-    lastName: String, 
-    email: String,
-    phone: String,
-    address: String,
-    city: String,
-    country: String,
-    age: Int,
-    isActive: Boolean
-): User
-
-// ✅ Use argument objects
-data class CreateUserCommand(
-    val firstName: String,
-    val lastName: String,
-    val email: String,
-    val phone: String,
-    val address: Address,
-    val age: Int,
-    val isActive: Boolean = true
-)
-
-fun createUser(command: CreateUserCommand): Either<UserCreationError, User>
-
-// ✅ For simple cases, use builder pattern
-class UserBuilder {
-    fun name(first: String, last: String) = apply { ... }
-    fun contact(email: String, phone: String) = apply { ... }
-    fun address(address: Address) = apply { ... }
-    fun build(): User = ...
-}
-```
-
-**Argument Guidelines:**
-- **0 arguments (niladic)**: Perfect
-- **1 argument (monadic)**: Very good - asking a question or transforming
-- **2 arguments (dyadic)**: Good - natural pairs like Point(x, y)
-- **3 arguments (triadic)**: Questionable - consider argument objects
-- **4+ arguments**: Almost certainly wrong - use objects or builders
-
-**Flag Arguments are Evil:**
-```kotlin
-// ❌ Flag arguments are confusing
-fun render(page: Page, isSuite: Boolean)
-
-// What does this mean?
-render(page, true)   // Is it a suite? What's a suite?
-render(page, false)  // Not a suite?
-
-// ✅ Split into separate functions
-fun renderSingleTest(page: Page)
-fun renderTestSuite(page: Page)
-```
-
-[Other existing code rules remain with any Clean Code enhancements...]
+Domain must compile without any framework present.
 
 ---
 
-*Related files: 01-principles.md, 03-anti-patterns.md, 04-testing-patterns.md, 05-clean-code-formatting.md*
+# 2. Functional Error Handling Doctrine
+
+Business rule violations MUST NOT be expressed using exceptions.
+
+The following are strictly forbidden inside domain/ and application/:
+
+- throw IllegalArgumentException
+- throw IllegalStateException
+- throw RuntimeException
+- throw custom business exceptions
+- any `throw` statement for validation or rule enforcement
+
+Business rule failures MUST be represented as:
+
+Either<Error, Result>
+
+All validation, invariant violations, and rule conflicts must return Either.
+
+Example (correct):
+
+Either<DomainError, Aggregate>
+
+Example (incorrect):
+
+throw new IllegalArgumentException("Invalid state");
+
+---
+
+# 3. Exception Boundary Rule
+
+Exceptions are allowed ONLY:
+
+- In infrastructure/
+- For technical failures
+- For framework integration boundaries
+- For external IO failures
+
+Infrastructure may translate technical exceptions into:
+
+- DomainError
+- IntegrationError
+- Or Either
+
+Domain and application layers must never propagate raw framework exceptions.
+
+---
+
+# 4. No Anemic Domain Model
+
+Aggregates MUST contain behavior.
+
+The following is forbidden:
+
+- Pure data containers
+- Getter/setter-only domain objects
+- Business logic implemented outside aggregates
+
+Behavior must live where the invariants live.
+
+---
+
+# 5. No Procedural Domain Orchestration
+
+Domain services MUST NOT:
+
+- Orchestrate application flows
+- Coordinate cross-aggregate processes
+- Act as transaction scripts
+
+Application layer coordinates.
+Domain layer enforces invariants.
+
+---
+
+# 6. Explicit Intent
+
+Public methods MUST express business intent.
+
+Forbidden naming patterns:
+
+- verify()
+- process()
+- handle()
+- doSomething()
+- util()
+
+Allowed:
+
+- attachClaim()
+- confirmBooking()
+- reserveCapacity()
+- approveApplication()
+
+Intent must be explicit.
+
+---
+
+# 7. No Framework Annotations in Domain
+
+Domain MUST NOT contain:
+
+- @Entity
+- @Component
+- @Service
+- @Repository
+- @Controller
+- Any framework annotation
+
+Annotations belong in infrastructure.
+
+---
+
+# 8. No Hidden Coupling
+
+Domain code MUST NOT:
+
+- Call external services
+- Inject infrastructure components
+- Access other bounded contexts directly
+
+Cross-context interaction occurs only through integration layer.
+
+---
+
+# 9. No Layer Leakage
+
+Application MUST NOT:
+
+- Access database implementations directly
+- Use framework controllers
+- Access infrastructure adapters
+
+Integration MUST NOT:
+
+- Contain business logic
+- Modify domain invariants
+
+Infrastructure MUST NOT:
+
+- Contain business rules
+- Modify domain invariants
+
+---
+
+# 10. Deterministic Return Types
+
+If a method can fail due to business rules, it MUST return Either.
+
+Void methods that may fail are forbidden.
+
+Implicit failure is forbidden.
+
+---
+
+End of Code Rules.

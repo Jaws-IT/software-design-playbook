@@ -15,7 +15,7 @@
 - **Double Dispatch Problem** - Complex type checking for behavior
 - **Testing Implementation** - Testing privates instead of behavior
 - **Temporal Coupling** - Methods that must be called in specific order
-- **Stringly Typed Code** - Using strings for everything
+- **Strongly Typed Code** - Using strings for everything
 - **Shotgun Surgery** - One change requires modifications everywhere
 - **Magic Numbers/Strings** - Unexplained literals scattered through code
 - **Null Checks Everywhere** - Forcing callers to handle nulls

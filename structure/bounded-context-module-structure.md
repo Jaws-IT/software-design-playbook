@@ -1,168 +1,277 @@
-# Bounded Context Module Structure
+    # PROJECT STRUCTURE AND LAYERING SPECIFICATION
 
-## Default Structural Doctrine
+This document defines the required project structure, layering rules,
+package rules, and dependency constraints.
 
-Every bounded context SHOULD follow a four-layer structure:
+These rules are mandatory and enforceable.
 
-domain  
-application  
-integration  
-infrastructure  
-
-This structure encodes authority, ownership, and separation of concerns.  
-It is the default model for all production-grade systems.
+No interpretation or advisory language applies.
 
 ---
 
-## 1. domain
+# 1. Module Structure
 
-Represents internal semantic truth.
+Each module MUST be implemented as a single Maven project.
+
+Required layout:
+
+modules/<module-name>/
+pom.xml
+src/
+main/
+java/
+domain/
+application/
+integration/
+infrastructure/
+test/
+java/
+
+Forbidden:
+
+- Multiple Maven sub-modules per layer
+- Separate artifacts for domain/application/integration/infrastructure
+- Custom source directory hacks
+- build-helper plugin to simulate layering
+- Layer directories at module root
+
+The four layers must exist under:
+
+src/main/java/
+
+---
+
+# 2. Required Layer Directories
+
+Each module MUST contain exactly four first-level directories under:
+
+src/main/java/
+
+Required:
+
+src/main/java/domain/
+src/main/java/application/
+src/main/java/integration/
+src/main/java/infrastructure/
+
+Forbidden:
+
+- boundary/
+- api/
+- adapters/
+- core/
+- impl/
+- services/
+- Any alternative layer naming
+
+Layer directories must be first-level under src/main/java.
+
+---
+
+# 3. No Layer Collapsing
+
+Layer responsibilities must remain isolated.
+
+Forbidden:
+
+- integration code inside domain
+- application code inside domain
+- infrastructure code inside application
+- integration merged into infrastructure
+- commands or queries inside domain
+- controllers inside domain
+- mixing multiple layers into a single folder
+
+Each layer must have a clearly separated directory.
+
+---
+
+# 4. Layer Responsibilities
+
+## domain/
+
+Contains ONLY:
+
+- Core business models
+- Aggregates
+- Value objects
+- Internal domain events
+- Domain-specific errors
+- Repository interfaces
+- Pure business logic
+
+Must NOT contain:
+
+- Command handlers
+- Query handlers
+- Application services
+- Integration events
+- Controllers
+- Messaging adapters
+- Database implementations
+- Framework annotations
+
+Domain must remain framework-independent.
+
+---
+
+## application/
 
 Contains:
-- Aggregates  
-- Value Objects  
-- Domain Commands  
-- Domain Events  
-- Domain Errors  
-- Domain Services  
-- Repository interfaces (ports)
 
-Rules:
-- Must not depend on application  
-- Must not depend on integration  
-- Must not depend on infrastructure  
-- Must not contain framework annotations  
-- Must not contain transport concerns  
-- Must not contain versioning logic  
+- Command handlers
+- Query handlers
+- Application services
+- Orchestration logic
 
-Domain is pure business logic.
+May depend on domain.
+
+Must NOT depend on infrastructure.
 
 ---
 
-## 2. application
-
-Represents use-case orchestration.
+## integration/
 
 Contains:
-- Command Handlers  
-- Query Handlers  
-- Application Services  
-- Coordination logic across domain services  
-- Transaction boundaries  
 
-Rules:
-- May depend on domain  
-- Must not depend on infrastructure  
-- Must not contain transport annotations  
-- Must not contain framework-specific constructs  
+- External contracts
+- Integration events
+- Integration commands
+- Translation logic between domain and external representations
 
-Application orchestrates domain logic.  
-It does not contain infrastructure logic.
+Must be:
+
+- Technology-agnostic
+- Transport-independent
+
+Must NOT contain infrastructure implementation details.
 
 ---
 
-## 3. integration
-
-Represents the bounded context’s published language.
+## infrastructure/
 
 Contains:
-- Integration Events (explicitly versioned)  
-- Integration Commands (if modeled)  
-- External contract DTOs  
-- Contract version definitions  
 
-Characteristics:
-- Transport-agnostic  
-- Technology-agnostic  
-- Explicitly versioned  
-- Stable across time  
+- REST controllers
+- Messaging adapters
+- Persistence implementations
+- Framework configuration
+- External system adapters
 
-Rules:
-- May reference domain types  
-- Must not depend on infrastructure  
-- Must not contain transport annotations  
-- Must not contain Kafka, REST, Avro, or serialization framework bindings  
+May depend on:
 
-Integration represents semantic contracts, not technical delivery.
+- domain
+- application
+- integration
+
+Other layers must not depend on infrastructure.
 
 ---
 
-## 4. infrastructure
+# 5. Dependency Direction Rules (Production Code)
 
-Represents technical mechanisms.
+Production code under:
 
-Contains:
-- REST controllers  
-- Message broker adapters  
-- File adapters  
-- Database implementations  
-- ORM mappings  
-- Outbox implementations  
-- Framework configuration  
+src/main/java/
 
-Rules:
-- May depend on integration  
-- May depend on application  
-- May depend on domain  
-- Nothing may depend on infrastructure  
-
-Infrastructure handles delivery and persistence.  
-It does not define business meaning.
-
----
-
-## Layer Direction Rule (Onion Principle)
-
-Dependencies must always point inward:
+Must follow this direction:
 
 infrastructure → integration → application → domain
 
-Never the reverse.
+Forbidden:
 
-Domain must remain unaware of outer layers.
-
----
-
-## Enforcement Mode
-
-For:
-- Enterprise systems  
-- Long-lived systems  
-- Multi-team systems  
-- Distributed systems  
-
-This structure is mandatory.
+- domain importing application
+- domain importing integration
+- domain importing infrastructure
+- application importing infrastructure
+- integration importing infrastructure
+- reverse dependencies between layers
 
 ---
 
-## Exception Mode
+# 6. Test Code Policy
 
-For:
-- Prototypes  
-- Disposable tools  
-- Experimental spikes  
+Test code under:
 
-The structure may be simplified.
+src/test/java/
 
-However:
+May depend outward for wiring and integration testing.
 
-The simplification must be conscious.
+Allowed in tests:
 
-The architect must explicitly answer:
+- application tests importing infrastructure
+- integration tests importing application
+- infrastructure tests importing domain
 
-“Why is separation of domain, contract, and infrastructure unnecessary here?”
+Forbidden in tests:
 
-Convenience is not sufficient justification.
+- Cross-module domain imports
+- Sharing domain models across modules
+- Violating module boundaries
+
+Module isolation rules apply to both production and test code.
 
 ---
 
-## Architectural Rationale
+# 7. Java Package Naming Rules
 
-Collapsing semantic contracts and infrastructure into a single “boundary” concept creates cognitive ambiguity between:
+Reverse-DNS naming is forbidden for internal modules.
 
-- Business meaning  
-- Published language  
-- Versioning responsibility  
-- Transport mechanism  
+Forbidden:
 
-The four-layer structure prevents this ambiguity and preserves architectural clarity.
+- package com.*
+- package org.*
+- package net.*
+- package io.*
+- Vendor/company-prefixed namespaces
+
+Artifact identity is defined by Maven coordinates,
+not by Java package names.
+
+---
+
+# 8. Package Structure Rules
+
+Packages must begin with the architectural layer.
+
+Correct examples:
+
+domain
+application
+integration
+infrastructure
+
+Sub-packages must express meaningful grouping.
+
+Allowed examples:
+
+domain/model
+domain/policy
+application/commands
+application/queries
+integration/contracts
+infrastructure/persistence
+
+Forbidden:
+
+- Repeating module name in package
+- Repeating layer name redundantly
+- Generic containers such as common, shared, utils without clear purpose
+
+---
+
+# 9. Structural Violations
+
+The following constitute violations:
+
+- Missing required layer directory
+- Additional architectural layer directory
+- Alternative layer naming
+- Layer collapsing
+- Reverse dependency direction in production code
+- Cross-module domain imports
+- Reverse-DNS package naming
+- Redundant package naming
+- Import direction violations
+
+Violations must fail validation.

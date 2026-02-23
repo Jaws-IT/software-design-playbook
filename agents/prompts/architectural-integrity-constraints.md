@@ -1,156 +1,116 @@
 # Architectural Integrity Constraints
 
-This document defines non-negotiable architectural constraints that protect domain purity, contract stability, and infrastructural replaceability.
+This document defines non-negotiable architectural rules.
 
-These rules are structural, not stylistic.
+These constraints override convenience and local optimizations.
 
 ---
 
-# 1. Layer Dependency Rule (Onion Principle)
+## 1. Onion Architecture Rule
 
-Dependencies must always point inward:
+Dependency direction must always point inward:
 
 infrastructure → integration → application → domain
 
-Never the reverse.
+Inner layers must never depend on outer layers.
 
-Violations:
-- Domain importing infrastructure classes
-- Integration importing infrastructure frameworks
-- Application importing transport adapters
-- Cross-layer circular dependencies
+The domain layer must remain framework-independent.
 
 ---
 
-# 2. Domain Purity Rule
+## 2. Domain Purity Rule
 
-The domain layer must remain pure.
+The domain layer may contain ONLY:
 
-Domain must not:
-- Import REST libraries
-- Import messaging libraries
-- Import persistence frameworks
-- Contain JSON annotations
-- Contain serialization annotations
-- Contain versioning logic
-- Contain integration event classes
+- Aggregates
+- Value Objects
+- Domain Events
+- Domain Errors
+- Repository interfaces (ports)
+- Pure domain services
 
-Domain contains only business meaning.
+The domain layer must NOT contain:
 
-If domain knows about transport or versioning, authority has leaked.
-
----
-
-# 3. Integration Contract Integrity Rule
-
-Integration represents published language.
-
-Integration must:
-- Be transport-agnostic
-- Be framework-agnostic
-- Be explicitly versioned
-- Be stable over time
-
-Integration must not:
-- Contain Kafka annotations
-- Contain REST annotations
-- Contain ORM mappings
-- Contain database logic
-
-If integration becomes infrastructure-shaped, contract integrity is lost.
-
----
-
-# 4. Infrastructure Isolation Rule
-
-Infrastructure handles technical delivery only.
-
-Infrastructure may depend on:
-- integration
-- application
-- domain
-
-But nothing may depend on infrastructure.
-
-Infrastructure must not:
-- Contain business rules
-- Contain domain decisions
-- Contain domain invariants
-
-Infrastructure implements delivery, not meaning.
-
----
-
-# 5. Translation Rule
-
-All cross-layer semantic transitions must be explicit.
-
-Inbound:
-Infrastructure → Integration → Application → Domain
-
-Outbound:
-Domain → Application → Integration → Infrastructure
-
-No direct jumps.
-
-Examples of violations:
-- Infrastructure directly invoking domain aggregates
-- Domain emitting integration events directly
-- Application publishing Kafka messages directly
-
-Translation boundaries must be visible in code.
-
----
-
-# 6. Cross-Bounded Context Collaboration Rule
-
-Bounded contexts must not:
-- Call each other's domain layer directly
-- Import each other's aggregates
-- Share internal models
-
-Collaboration must occur via:
 - Integration events
-- Published language
-- Explicit contracts
-
-Synchronous in-memory cross-BC calls are strongly discouraged.
-If used, they must be explicitly justified.
-
----
-
-# 7. Exception Policy
-
-For production systems, these constraints are mandatory.
-
-For prototypes or disposable tools:
-Simplification is allowed only after explicitly answering:
-
-“Why is architectural separation unnecessary here?”
-
-Convenience is not justification.
-
-Intentional deviation is allowed.
-Accidental collapse is not.
+- REST DTOs
+- Messaging DTOs
+- Controllers
+- Database implementations
+- Framework annotations
+- Serialization logic
 
 ---
 
-# 8. Architectural Rationale
+## 3. Integration Ownership Rule
 
-Architectural integrity protects:
+Domain emits Domain Events.
 
-- Domain authority
-- Contract stability
-- Replaceable infrastructure
-- Coupling control
-- Failure-chain risk reduction
+Integration layer translates Domain Events into Integration Events.
 
-Collapsing layers creates:
+Infrastructure publishes Integration Events.
 
-- Authority leakage
-- Semantic confusion
-- Versioning instability
-- Hidden coupling
+Integration events must be:
 
-Structure is not cosmetic.
-Folder placement encodes responsibility.
+- Technology-agnostic
+- Transport-independent
+- Explicitly versioned
+- Stable contracts
+
+Integration contracts belong to the bounded context,
+but outside the domain layer.
+
+---
+
+## 4. Cross–Bounded Context Rule
+
+Bounded contexts MUST NOT communicate via:
+
+- Direct in-memory calls
+- Direct service injection
+- Repository access across contexts
+- Shared domain objects
+
+Even inside a modular monolith.
+
+All cross-BC communication MUST occur through:
+
+- Integration Commands
+- Integration Events
+- Explicit translation in the integration layer
+
+There must always be a semantic boundary.
+
+No bounded context may depend directly on another bounded context’s domain model.
+
+---
+
+## 5. No Structural Collapsing
+
+The following collapses are forbidden:
+
+- Placing integration inside domain
+- Placing infrastructure inside domain
+- Merging application and infrastructure layers
+- Bypassing integration when communicating across BCs
+
+Architectural separation must remain explicit.
+
+---
+
+## 6. Authority Protection Rule
+
+If you share internal domain data structures across bounded contexts,
+you are handing over semantic authority.
+
+This is forbidden.
+
+Only integration contracts may cross boundaries.
+
+---
+
+## 7. Validation Priority
+
+When architectural constraints conflict with convenience,
+the constraints win.
+
+Architecture governs code, not the other way around.

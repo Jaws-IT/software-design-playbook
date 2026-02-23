@@ -1,165 +1,237 @@
+# Functional Either Chain Pattern
 
-with this:
+Status: Advisory Pattern  
+Scope: Application layer orchestration  
+Applies to: Functional-style Java using Vavr Either, Tuple, and flatMap
 
-```markdown
-# Error Handling Patterns
+This pattern defines a disciplined way of composing application logic using Either as the primary control structure.
 
-Implementation patterns for applying the system-wide error handling model in code.
+It reinforces:
+- Functional error handling (no exceptions for business rules)
+- Single-orchestrator methods
+- Flat, readable chains
+- Explicit context propagation
 
----
-
-## Core Practices
-
-- Use `Either`/`Result` for expected failures  
-- Use exceptions for system failures  
-- Fail fast for invariants  
-- Make errors explicit and typed  
-- Avoid translation layers  
-- Preserve context as errors propagate  
+This is a tactical implementation pattern.
+It is not a structural enforcement rule.
 
 ---
 
-## Error Type Design Patterns
+1. Intent
 
-### Sealed Classes for Error Hierarchies
+Application-layer orchestration should:
+- Use Either as the primary monadic container
+- Compose steps using a single outer flatMap chain
+- Avoid nested blocks
+- Avoid exception-based control flow
+- Preserve explicit data flow
 
-Use sealed classes to represent explicit domain failures.
-
-Benefits:
-- Type safety
-- Exhaustive handling
-- Clear domain language
-
----
-
-### Error Composition & Accumulation
-
-Use validation accumulation for user input scenarios:
-
-- Collect all validation errors
-- Return them together
-- Improve user experience
-
-Use fail-fast validation for invariants.
+The orchestrator method should read as a linear sequence of transformations.
 
 ---
 
-## Error Propagation Patterns
+2. One Orchestrator Rule
 
-### Railway-Oriented Programming
+The main method must be a flat chain of flatMap calls.
 
-Chain operations using `flatMap`:
+Example:
 
-- Stops on first error
-- Keeps logic linear
-- Avoids nested try/catch
+    public Either<MappingError, List<AvailabilityQuestion>> generate(PlanningRequest request) {
+        return extractRequiredResource(request)
+                .flatMap(resource -> computeStartTimes(request, resource))
+                .flatMap(tuple -> createQuestions(tuple))
+                .flatMap(questions -> applyPlanningWindow(questions, request));
+    }
 
----
+The orchestrator must not:
+- Contain business logic
+- Contain nested blocks
+- Contain temporary mutable variables
+- Throw exceptions for business failures
 
-### Error Recovery Strategies
-
-Recover when meaningful:
-
-- Retry transient failures
-- Reload on concurrency conflicts
-- Provide fallbacks where safe
-
-Do NOT retry blindly.
-
----
-
-### Error Context Enrichment
-
-As errors propagate:
-
-- Add business context
-- Add identifiers
-- Add timestamps
-- Preserve original cause
-
-Never wrap and lose information.
+It coordinates only.
 
 ---
 
-## Validation Patterns
+3. Split to Understand
 
-### Fail-Fast vs Collect-All
+Each logical step must be extracted into its own function returning Either.
 
-Use fail-fast:
-- Invariants
-- Constructors
-- Domain consistency
+Before (mixed concerns):
 
-Use collect-all:
-- User input validation
-- Form processing
+    public Either<Error, Result> process(Request request) {
+        var resource = extractResource(request);
+        var times = computeTimes(request.steps(), request.startTime());
+        var questions = createQuestions(resource, times);
+        return Either.right(questions);
+    }
 
----
+After (separated responsibilities):
 
-### Smart Constructors
+    public Either<Error, Result> process(Request request) {
+        return extractResource(request)
+                .flatMap(resource -> computeTimes(request, resource))
+                .flatMap(tuple -> createQuestions(tuple));
+    }
 
-Use factory methods returning `Either` to prevent invalid state creation.
-
----
-
-## Exception Usage Patterns
-
-Use exceptions for:
-
-- Programming errors
-- Infrastructure failures
-- System startup failures
-
-Avoid exceptions for:
-
-- Expected business logic
-- Control flow
+Each step performs exactly one transformation.
 
 ---
 
-## Observability Patterns
+4. Context Propagation via Tuple
 
-### Logging Strategy
+When later steps require earlier data, use Tuple to carry context forward.
 
-Log based on severity:
+    return extractResource(request)
+            .flatMap(resource ->
+                    right(computeStartTimes(request))
+                            .map(times -> of(resource, times)))
+            .flatMap(tuple ->
+                    right(createQuestions(tuple._1(), tuple._2())));
 
-- System failures → ERROR  
-- Recoverable technical → WARN  
-- Expected business failures → INFO/DEBUG  
-
-Always log with context.
-
----
-
-### Structured Error Data
-
-Include structured metadata:
-
-- Identifiers
-- Amounts
-- Timestamps
-- Correlation IDs
-
-Useful for monitoring and metrics.
+Rules:
+- Do not re-fetch context.
+- Do not introduce mutable holders.
+- Do not nest lambdas to preserve scope.
+- Use Tuple explicitly.
 
 ---
 
-## Boundary Translation Patterns
+5. Option to Either Conversion
 
-### Bounded Context Boundaries
+Convert Option directly using fold.
 
-Translate errors when crossing contexts.
+    .flatMap(questions ->
+            request.planningWindow().fold(
+                    () -> right(questions),
+                    window -> right(filterQuestionsByWindow(questions, window))
+            ));
 
-Do not leak internal error types outside their context.
+Do not:
+- Use getOrElse
+- Call get
+- Introduce nested map plus conditional logic
+
+fold must produce Either directly.
 
 ---
 
-### API Boundaries
+6. flatMap vs map Discipline
 
-Convert domain errors into:
+Use flatMap when the function returns Either.
+Use map when transforming the inner value.
 
-- HTTP responses
-- UI messages
-- External contracts
+Correct:
 
-Never expose internal implementation details.
+    .flatMap(x -> functionReturningEither(x))
+    .map(x -> transformValue(x))
+
+Incorrect:
+
+    .map(x -> functionReturningEither(x))   // produces Either<Either<...>>
+
+---
+
+7. Inline Trivial Either Wrappers
+
+If a function only wraps a value in Either.right, inline it.
+
+Before:
+
+    private Either<Error, List<Time>> computeTimes(Request request) {
+        return Either.right(computeSequentialTimes(request));
+    }
+
+After:
+
+    .flatMap(resource ->
+            right(computeSequentialTimes(request))
+                    .map(times -> of(resource, times)));
+
+Avoid unnecessary wrapper functions.
+
+---
+
+8. Static Imports for Readability
+
+Use static imports to reduce syntactic noise.
+
+    import static io.vavr.Tuple.of;
+    import static io.vavr.control.Either.right;
+
+Result:
+
+    .flatMap(resource ->
+            right(computeTimes(request)).map(times -> of(resource, times)))
+
+The chain should read as a linear transformation pipeline.
+
+---
+
+9. Explicit Type Scaffolding
+
+During development, Java may require explicit generics.
+
+    Either.<MappingError, List<LocalDateTime>>right(computeTimes(request))
+
+Once structure is stable, remove redundant explicit types where inference succeeds.
+
+Type scaffolding is temporary, not permanent verbosity.
+
+---
+
+10. Final Shape
+
+A compliant orchestrator method has the following properties:
+- Single return statement
+- No local mutable variables
+- No nested control blocks
+- No throw statements
+- No exception-based validation
+- Flat flatMap chain
+- Clear data flow
+- Explicit context propagation
+
+Example:
+
+    @Override
+    public Either<MappingError, List<AvailabilityQuestion>> generate(PlanningRequest request) {
+        return extractRequiredResource(request)
+                .flatMap(resource ->
+                        Either.<MappingError, List<LocalDateTime>>right(computeStartTimes(request))
+                                .map(startTimes -> of(resource, startTimes)))
+                .flatMap(tuple ->
+                        right(request.steps()
+                                .zipWith(tuple._2(), (step, time) -> createQuestion(step, tuple._1(), time))))
+                .flatMap(questions ->
+                        request.planningWindow().fold(
+                                () -> right(questions),
+                                window -> right(filterQuestionsByWindow(questions, window))
+                        ));
+    }
+
+---
+
+11. Common Violations
+
+- Nested blocks instead of flat chain
+- Mutable local variables
+- Losing context due to scope errors
+- Mixing map and flatMap incorrectly
+- Throwing exceptions instead of returning Either
+- Performing orchestration inside the domain layer
+
+---
+
+12. Architectural Alignment
+
+This pattern supports:
+- Functional error handling doctrine
+- No-throw business validation
+- Application-layer orchestration discipline
+- Clear separation of concerns
+- Deterministic repair enforcement
+
+This pattern is advisory but strongly recommended for all application-layer orchestration logic.
+
+End of Functional Either Chain Pattern.
