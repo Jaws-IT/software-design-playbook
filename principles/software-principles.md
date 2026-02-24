@@ -8,7 +8,7 @@ Includes Clean Code Integration
 
 ## Summary
 
-- Tell Don't Ask — Tell objects what to do, do not query their state
+- Tell Don't Ask — Tell domain objects what to do, do not query their state
 - Intention-Revealing Names and Functions — Names and method signatures reveal true intent
 - Avoid Meaningless Suffixes — No -Manager, -Handler, -Processor suffixes
 - Explicit over Implicit — Clear intent over clever code
