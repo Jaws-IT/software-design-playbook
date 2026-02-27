@@ -298,4 +298,114 @@ Violation of this doctrine indicates layer responsibility breach.
 
 ---
 
+# SECTION 4 — ADVISORY UI ARCHITECTURE PATTERN
+
+Status: Advisory  
+Scope: Graphical or interactive frontend systems only  
+Does NOT fail CI
+
+This section applies only when building UI systems.  
+It does not apply to backend-only bounded contexts.
+
+---
+
+## 17. Canvas-Based Shell Pattern
+
+When building a UI, prefer:
+
+- A single shell
+- Multiple canvases (render targets)
+- Micro-frontends activated inside canvases
+- Navigation defined as activation of a capability, not page navigation
+
+Navigation SHOULD mean:
+
+    "Activate micro-frontend Y in canvas Z"
+
+Not:
+
+    "Navigate to page X"
+
+---
+
+## 18. Ownership Model
+
+Shell owns:
+
+- Canvas layout
+- History management
+- URL-to-canvas resolution
+- Micro-frontend registration
+- Activation mapping
+
+Micro-frontend owns:
+
+- Its trigger UI
+- Its content UI
+- Its internal state
+- Its internal transitions
+- Its real-time connections
+
+A micro-frontend owns both its trigger and its content.
+
+---
+
+## 19. History Discipline
+
+Browser history is a shell concern.
+
+Widgets must not implement browser back behavior.
+
+Widgets move forward only.
+
+Shell restores canvas state when popstate occurs.
+
+---
+
+## 20. Forward-Only State Modeling
+
+UI state transitions SHOULD:
+
+- Be explicit
+- Be modeled as sealed state hierarchies
+- Use forward-only transitions
+- Use railway-style error handling
+- Avoid try/catch as control flow
+
+Cancel and Undo are forward transitions, not backward jumps.
+
+---
+
+## 21. Menu as Composition Point
+
+Menus SHOULD:
+
+- Be composed
+- Allow micro-frontends to register contributions
+- Not be owned by a single UI component
+
+This aligns with plugin-style composition and inversion of control.
+
+---
+
+## 22. When to Apply Micro-Frontend Architecture
+
+Consider this pattern when:
+
+- Multiple bounded contexts expose UI capabilities
+- Independent deployment is required
+- UI ownership mirrors domain ownership
+- Strong isolation is necessary
+
+Do not apply when:
+
+- The system is small
+- One team owns all UI
+- Domain boundaries do not justify separation
+
+Architecture must follow domain boundaries.
+Never the reverse.
+
+---
+
 End of Architecture Enforcement Specification.
