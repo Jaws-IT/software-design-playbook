@@ -1,6 +1,6 @@
 # Code Rules
 
-Version: 2.1  
+Version: 2.2  
 Last Updated: February 27, 2026  
 Status: Authoritative  
 Scope: All bounded contexts  
@@ -43,21 +43,15 @@ The following are strictly forbidden inside domain/ and application/:
 - throw IllegalStateException
 - throw RuntimeException
 - throw custom business exceptions
-- any `throw` statement for validation or rule enforcement
+- any throw statement for validation or rule enforcement
 
-Business rule failures MUST be represented as:
-
-Either<Error, Result>
+Business rule failures MUST be represented as Either.
 
 All validation, invariant violations, and rule conflicts must return Either.
 
-Example (correct):
+Void methods that may fail are forbidden.
 
-Either<DomainError, Aggregate>
-
-Example (incorrect):
-
-throw new IllegalArgumentException("Invalid state");
+Implicit failure is forbidden.
 
 ---
 
@@ -65,7 +59,7 @@ throw new IllegalArgumentException("Invalid state");
 
 Exceptions are allowed ONLY:
 
-- In infrastructure/
+- In infrastructure
 - For technical failures
 - For framework integration boundaries
 - For external IO failures
@@ -119,12 +113,14 @@ Forbidden naming patterns:
 - doSomething()
 - util()
 
-Allowed:
+Allowed examples:
 
 - attachClaim()
 - confirmBooking()
 - reserveCapacity()
 - approveApplication()
+- completeInquiry()
+- recordAvailability()
 
 Intent must be explicit.
 
@@ -163,7 +159,7 @@ Application MUST NOT:
 
 - Access database implementations directly
 - Use framework controllers
-- Access infrastructure adapters
+- Access infrastructure adapters directly
 
 Integration MUST NOT:
 
@@ -190,45 +186,61 @@ Implicit failure is forbidden.
 # 11. Streaming Discipline for Potentially Large Sequences
 
 When a method may produce a potentially large or conceptually unbounded sequence,
-it SHOULD favor lazy generation over eager materialization.
-
-This applies especially to:
-
-- Candidate generation strategies
-- Scheduling algorithms
-- Search pipelines
-- Transformation chains
-- Domain-level sequence processing
+it SHOULD favor streaming over eager materialization.
 
 Avoid inside domain:
 
 - map → collect → re-iterate patterns
-- Building intermediate lists only to traverse them again
 - Double traversal of large collections
-- Premature materialization for convenience
+- Premature intermediate list construction
 
 Prefer:
 
-- Single-pass pipelines
-- Lazy chaining
-- Compositional transformations
-- Explicit boundary mapping outside domain
+- Single-pass transformations
+- Stream API usage for transformation chains
+- Compositional flow
 
-Streaming is not mandatory for small, clearly bounded collections.
+Streaming is not mandatory for clearly bounded small collections.
 
-However, if scale is plausible or unknown,
-design must favor structural resilience over convenience.
-
-Performance improvements MUST NOT:
-
-- Collapse domain and integration models
-- Introduce boundary violations
-- Move orchestration into domain
-- Leak infrastructure concerns inward
-
-Clarity first.
-Then efficiency.
 Architecture must survive growth.
+
+---
+
+# 12. No Interrogative Invariant Exposure (CRITICAL)
+
+Aggregates MUST NOT expose public boolean or primitive state queries
+that derive invariant logic from internal collections or internal state.
+
+Forbidden patterns:
+
+- public boolean isComplete()
+- public boolean hasX()
+- public int remainingCount()
+- public boolean isValid()
+- Any public method exposing derived state based on internal collections.
+
+Rationale:
+
+Interrogative invariant exposure encourages procedural orchestration
+outside the aggregate and leaks internal decision logic.
+
+Completion, validation, and state transitions MUST be expressed
+as intention-driven commands.
+
+Correct pattern:
+
+Instead of:
+
+    public boolean isComplete()
+
+Use:
+
+    public Either<DomainError, CompletionResult> complete()
+
+The aggregate must own the transition,
+not expose derived status for external branching.
+
+Violation Severity: CRITICAL
 
 ---
 
