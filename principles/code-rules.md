@@ -1,5 +1,7 @@
 # Code Rules
 
+Version: 2.1  
+Last Updated: February 27, 2026  
 Status: Authoritative  
 Scope: All bounded contexts  
 Applies to: Domain, Application, Integration, Infrastructure
@@ -182,6 +184,51 @@ If a method can fail due to business rules, it MUST return Either.
 Void methods that may fail are forbidden.
 
 Implicit failure is forbidden.
+
+---
+
+# 11. Streaming Discipline for Potentially Large Sequences
+
+When a method may produce a potentially large or conceptually unbounded sequence,
+it SHOULD favor lazy generation over eager materialization.
+
+This applies especially to:
+
+- Candidate generation strategies
+- Scheduling algorithms
+- Search pipelines
+- Transformation chains
+- Domain-level sequence processing
+
+Avoid inside domain:
+
+- map → collect → re-iterate patterns
+- Building intermediate lists only to traverse them again
+- Double traversal of large collections
+- Premature materialization for convenience
+
+Prefer:
+
+- Single-pass pipelines
+- Lazy chaining
+- Compositional transformations
+- Explicit boundary mapping outside domain
+
+Streaming is not mandatory for small, clearly bounded collections.
+
+However, if scale is plausible or unknown,
+design must favor structural resilience over convenience.
+
+Performance improvements MUST NOT:
+
+- Collapse domain and integration models
+- Introduce boundary violations
+- Move orchestration into domain
+- Leak infrastructure concerns inward
+
+Clarity first.
+Then efficiency.
+Architecture must survive growth.
 
 ---
 

@@ -15,9 +15,10 @@ Includes Clean Code Integration
 - Make Errors Explicit and Illegal States Impossible — Use type system + proper error handling
 - Objects Hide Data, Expose Behavior — Objects vs data structures distinction
 - Compositional Inside, Semantic at Boundaries — Optimize for composition internally, clarity externally
+- Lazy Over Eager When Scale Is Plausible — Prefer lazy composition when sequence size is unknown or potentially large
 - Interface Discovery Through Usage — Design APIs from caller's perspective
 - The Boy Scout Rule — Always leave code cleaner than you found it
-- One Thing Rule — Each function\/class does exactly one thing
+- One Thing Rule — Each function/class does exactly one thing
 
 ---
 
@@ -73,11 +74,11 @@ Always leave the code cleaner than you found it.
 Example improvement:
 
 fun calculateTotal(items: List<Item>): Money {
-    var total = Money.ZERO
-    for (item in items) {
-        total += item.price * item.quantity
-    }
-    return total
+var total = Money.ZERO
+for (item in items) {
+total += item.price * item.quantity
+}
+return total
 }
 
 Small improvements compound over time.
@@ -122,9 +123,9 @@ class Account private constructor(private val balance: Money) {
 Example (Data Structure):
 
 data class UserDto(
-    val name: String,
-    val email: String,
-    val createdAt: Instant
+val name: String,
+val email: String,
+val createdAt: Instant
 )
 
 ---
@@ -174,9 +175,64 @@ Semantic clarity belongs at boundaries.
 
 ---
 
+### Lazy Over Eager When Scale Is Plausible
+
+When working with collections or sequences, consider whether the size is:
+
+- Small and bounded
+- Potentially large
+- Conceptually unbounded
+
+If the sequence is small and clearly limited, simple lists and loops are perfectly fine.
+
+However, when scale is plausible or unknown:
+
+Favor:
+
+- Lazy composition
+- Streaming pipelines
+- Functional chaining
+- Single-pass transformations
+
+Avoid:
+
+- map → collect → re-iterate patterns
+- Double traversal of large collections
+- Building large intermediate lists unnecessarily
+- Eager materialization for convenience
+
+Example (avoid double materialization):
+
+// ❌ Eager + double traversal  
+val slots = generateTimeSlots()  
+val probes = slots.map { it.toProbe() }  
+for (probe in probes) { ... }
+
+// ✅ Lazy pipeline  
+generateTimeSlots()
+.map { it.toProbe() }
+.forEach { ... }
+
+Lazy composition preserves:
+
+- Memory efficiency
+- Structural clarity
+- Compositional power
+
+Do not collapse domain and integration concepts merely to “save cycles.”
+
+Streaming is not dogma.  
+It is discipline when scale makes it relevant.
+
+Clarity first.  
+Then efficiency.  
+Prefer designs that survive growth.
+
+---
+
 ### Make Errors Explicit and Illegal States Impossible
 
-Expected business errors → Either \/ Result types
+Expected business errors → Either / Result types
 
 Example:
 
@@ -187,19 +243,11 @@ Unexpected system failures → Exceptions
 Example:
 
 fun loadAccount(id: AccountId): Account {
-    return try {
-        database.load(id)
-    } catch (e: IOException) {
-        throw SystemException("Database unavailable", e)
-    }
+return try {
+database.load(id)
+} catch (e: IOException) {
+throw SystemException("Database unavailable", e)
+}
 }
 
 Use the type system to eliminate illegal states.
-
----
-
-Next files:
-02-code-rules.md  
-03-anti-patterns.md  
-04-testing-patterns.md  
-05-clean-code-formatting.md

@@ -184,6 +184,49 @@ Processes spanning aggregates or contexts should:
 
 ---
 
+## 12. Design Extremification Principle
+
+Architectural designs must be stress-tested conceptually before implementation.
+
+When evaluating a design, intentionally increase:
+
+- Data volume
+- Concurrency
+- Distribution
+- Latency
+- Failure scenarios
+- Cross-context interaction complexity
+
+If increasing these factors causes:
+
+- Boundary blurring
+- Responsibility leakage
+- Domain-to-integration collapse
+- Layer violations
+- Hidden orchestration
+- Performance fixes that require structural compromise
+
+Then the design is structurally weak.
+
+Architecture must survive scale conceptually before it is exposed to scale operationally.
+
+Extremification is not premature optimization.
+It is structural validation.
+
+Design as if growth is inevitable.
+If the model collapses under thought-experiment scale, it is already flawed.
+
+This principle guides:
+
+- Architectural reviews
+- Agent reasoning
+- Refactoring decisions
+- Performance discussions
+
+Scale reveals structural truth.
+
+---
+
 # SECTION 3 — INFRASTRUCTURE NAMING DOCTRINE
 
 Status: Authoritative
@@ -192,7 +235,7 @@ Applies to: Class naming and semantic boundaries
 
 ---
 
-## 12. Principle
+## 13. Principle
 
 Business semantics must not leak into infrastructure implementation class names.
 
@@ -208,7 +251,7 @@ Infrastructure implementations must remain mechanism-only.
 
 ---
 
-## 13. Layered Naming Split
+## 14. Layered Naming Split
 
 A strict separation is required:
 
@@ -256,7 +299,7 @@ Forbidden in infrastructure names:
 
 ---
 
-## 14. Wiring Responsibility
+## 15. Wiring Responsibility
 
 Semantic ports are bound to infrastructure implementations in configuration.
 
@@ -271,7 +314,7 @@ Infrastructure must not encode business intent in its name.
 
 ---
 
-## 15. Rationale
+## 16. Rationale
 
 This doctrine enforces:
 
@@ -286,7 +329,7 @@ semantic responsibility has collapsed outward.
 
 ---
 
-## 16. Enforcement Strategy
+## 17. Enforcement Strategy
 
 This rule may be validated by:
 
@@ -309,7 +352,7 @@ It does not apply to backend-only bounded contexts.
 
 ---
 
-## 17. Canvas-Based Shell Pattern
+## 18. Canvas-Based Shell Pattern
 
 When building a UI, prefer:
 
@@ -328,7 +371,7 @@ Not:
 
 ---
 
-## 18. Ownership Model
+## 19. Ownership Model
 
 Shell owns:
 
@@ -350,7 +393,7 @@ A micro-frontend owns both its trigger and its content.
 
 ---
 
-## 19. History Discipline
+## 20. History Discipline
 
 Browser history is a shell concern.
 
@@ -362,7 +405,7 @@ Shell restores canvas state when popstate occurs.
 
 ---
 
-## 20. Forward-Only State Modeling
+## 21. Forward-Only State Modeling
 
 UI state transitions SHOULD:
 
@@ -376,7 +419,7 @@ Cancel and Undo are forward transitions, not backward jumps.
 
 ---
 
-## 21. Menu as Composition Point
+## 22. Menu as Composition Point
 
 Menus SHOULD:
 
@@ -388,7 +431,7 @@ This aligns with plugin-style composition and inversion of control.
 
 ---
 
-## 22. When to Apply Micro-Frontend Architecture
+## 23. When to Apply Micro-Frontend Architecture
 
 Consider this pattern when:
 
