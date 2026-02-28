@@ -15,7 +15,7 @@
 - **Double Dispatch Problem** - Complex type checking for behavior
 - **Testing Implementation** - Testing privates instead of behavior
 - **Temporal Coupling** - Methods that must be called in specific order
-- **Strongly Typed Code** - Using strings for everything
+- **Stringly Typed Code** - Using strings for everything
 - **Shotgun Surgery** - One change requires modifications everywhere
 - **Magic Numbers/Strings** - Unexplained literals scattered through code
 - **Null Checks Everywhere** - Forcing callers to handle nulls
@@ -34,7 +34,211 @@
 
 ## Detailed Anti-Patterns
 
-[Previous anti-patterns remain the same...]
+### Generated Code Internally
+
+Generating source code from inside the running system hides behavior behind a second, harder-to-govern design layer.
+
+Business logic should be modeled directly in code, not emitted as generated fragments that bypass normal review.
+
+---
+
+### Rules in Config
+
+Configuration should select behavior, not define core business rules.
+
+If changing a YAML file changes the meaning of a domain invariant,
+the rule is in the wrong place.
+
+Use configuration for environment selection and operational tuning.
+Keep business decisions in typed, testable code.
+
+---
+
+### Runtime Validation Instead of Compile-Time Types
+
+Do not defer obvious domain correctness to ad hoc runtime checks.
+
+Prefer:
+
+- value objects over raw strings
+- sealed types over loosely coordinated flags
+- constrained constructors over scattered validators
+
+If invalid states can be created easily and rejected only later,
+the model is too weak.
+
+---
+
+### Anemic Domain Models
+
+A domain model that only stores data and exposes getters is not modeling behavior.
+
+When validation, transitions, and decisions live in services around the object,
+the object has lost authority over its own invariants.
+
+---
+
+### God Objects and God Classes
+
+Classes that accumulate too many responsibilities become change magnets and coupling hubs.
+
+Typical signs:
+
+- many dependencies
+- unrelated methods
+- broad knowledge of multiple subdomains
+- constant modification for unrelated reasons
+
+Split by responsibility and by domain language, not by arbitrary technical layers.
+
+---
+
+### Primitive Obsession
+
+Raw `String`, `Int`, `Long`, and `Boolean` values should not carry domain meaning by convention alone.
+
+Prefer value objects such as `EmailAddress`, `Money`, `BookingId`, and `ReservationWindow`.
+
+Primitive-heavy models force validation and interpretation to be repeated everywhere.
+
+---
+
+### Leaky Abstractions
+
+An abstraction has failed when callers must understand internal implementation details to use it safely.
+
+Examples:
+
+- ports that expose framework-specific concepts
+- APIs whose naming mirrors persistence schema instead of domain intent
+- wrappers that still force callers to know transport details
+
+If the hidden mechanism still leaks into every caller, the abstraction is fake.
+
+---
+
+### Train Wreck Code
+
+Long navigation chains expose internal structure and couple callers to object graphs.
+
+Bad:
+
+    booking.customer().address().country().code()
+
+Prefer intention-based behavior at the correct boundary.
+
+---
+
+### Double Dispatch Problem
+
+Excessive `if` or `when` branching over types is a signal that behavior is not living with the relevant model.
+
+If code repeatedly asks "what kind of thing is this?" before acting,
+consider polymorphism, sealed hierarchies, or explicit domain operations instead.
+
+---
+
+### Testing Implementation
+
+Tests should validate behavior, outcomes, and invariants.
+
+Avoid tests that lock in:
+
+- private method structure
+- exact call counts without business meaning
+- internal collection choices
+- incidental sequencing details
+
+These tests punish refactoring without protecting real behavior.
+
+---
+
+### Temporal Coupling
+
+APIs that require hidden call order are brittle.
+
+Bad:
+
+    order.validate()
+    order.calculate()
+    order.persist()
+
+If the order matters, model the sequence explicitly in the API or combine the steps into a single intention-revealing operation.
+
+---
+
+### Stringly Typed Code
+
+When important domain concepts are represented as unconstrained strings,
+the compiler cannot help you.
+
+Examples:
+
+- status as `"OPEN"` or `"CLOSED"`
+- currency as `"EUR"`
+- identifiers as unvalidated raw strings
+
+Stringly typed code spreads parsing, validation, and typo risk across the system.
+
+---
+
+### Shotgun Surgery
+
+One conceptual change should not require edits in many unrelated files.
+
+If a simple rule change forces updates across controllers, services, DTOs, validators, mappers, and tests,
+the design is fragmented around technical structure instead of business ownership.
+
+---
+
+### Magic Numbers and Magic Strings
+
+Literals without named meaning obscure the rule they implement.
+
+Bad:
+
+    if (attempts > 3) { ... }
+    if (status == "A") { ... }
+
+Prefer named constants, value objects, or domain types that explain the rule.
+
+---
+
+### Null Checks Everywhere
+
+If every caller must defensively handle `null`,
+the design is pushing uncertainty outward.
+
+Prefer:
+
+- non-nullable types
+- explicit optional types
+- null object patterns where appropriate
+- constructors that enforce valid state
+
+---
+
+### Constructor Coupling
+
+Constructors with many dependencies usually reveal excessive responsibility.
+
+This is especially dangerous when a class depends on repositories, gateways, policies, mappers, and utilities all at once.
+
+High constructor arity is often a structural smell, not just a style issue.
+
+---
+
+### Low-Level Controlling High-Level
+
+Infrastructure and low-level details must not dictate domain or application behavior.
+
+Examples:
+
+- repository shape driving aggregate design
+- transport DTOs deciding domain operations
+- framework limitations leaking upward into business rules
+
+High-level policy should control low-level mechanism, not the other way around.
 
 ---
 
@@ -266,3 +470,9 @@ Integration types must not leak into domain logic.
 Optimization must not compromise architecture.
 
 ---
+
+Related files:
+[principles/software-principles.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/software-principles.md)  
+[principles/code-rules.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/code-rules.md)  
+[principles/structural-anti-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/structural-anti-patterns.md)  
+[patterns/testing-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/patterns/testing-patterns.md)

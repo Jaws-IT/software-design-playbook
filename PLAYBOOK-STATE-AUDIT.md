@@ -4,6 +4,11 @@ Date: February 28, 2026
 Repository commit audited: `635dcdb`
 Branch: `main`
 
+Recovery branch progress:
+
+- Active recovery branch: `playbook-recovery`
+- Recovery status on branch: placeholder-free, no empty Markdown files, no stale internal numbered references in audited content
+
 ## Purpose
 
 This file records the current, observable state of the playbook so future work starts from evidence instead of assumptions.
@@ -19,22 +24,22 @@ This file records the current, observable state of the playbook so future work s
 
 ### 1. Incomplete file
 
-- [standards/micro-frontend-ownership-standard.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/standards/micro-frontend-ownership-standard.md) is tracked but empty.
+- [standards/micro-frontend-ownership-standard.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/standards/micro-frontend-ownership-standard.md) was tracked empty on `main` and has been reconstructed on `playbook-recovery`.
 
 ### 2. Placeholder content replaced prior material instead of preserving it
 
-- [principles/software-principles.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/software-principles.md) contains the marker `[Previous content remains the same]`.
-- [principles/code-anti-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/code-anti-patterns.md) contains the marker `[Previous anti-patterns remain the same...]`.
+- [principles/software-principles.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/software-principles.md) contained a placeholder on `main` and has been reconstructed on `playbook-recovery`.
+- [principles/code-anti-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/code-anti-patterns.md) contained a placeholder on `main` and has been reconstructed on `playbook-recovery`.
 
-These files cannot currently be treated as complete because the documents explicitly reference missing earlier content.
+These were not fully recoverable from literal git history because the placeholder state already existed in early committed revisions. The current recovery branch replaces those placeholders with coherent doctrine aligned to the rest of the repository.
 
-### 3. Stale internal references exist
+### 3. Stale internal references existed
 
-- [patterns/testing-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/patterns/testing-patterns.md) references non-existent numbered files such as `01-principles.md`.
-- [patterns/architectural-decision-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/patterns/architectural-decision-patterns.md) references non-existent numbered files.
-- [patterns/strategic-design-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/patterns/strategic-design-patterns.md) references non-existent numbered files.
+- [patterns/testing-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/patterns/testing-patterns.md) referenced non-existent numbered files such as `01-principles.md`.
+- [patterns/architectural-decision-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/patterns/architectural-decision-patterns.md) referenced non-existent numbered files.
+- [patterns/strategic-design-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/patterns/strategic-design-patterns.md) referenced non-existent numbered files.
 
-This indicates some content was imported or rewritten from a different file layout without fully reconciling links and references.
+These references have been corrected on `playbook-recovery`.
 
 ### 4. Repository workflow and repository structure were out of sync
 
@@ -52,7 +57,7 @@ These files changed substantially and should be reviewed against prior revisions
 - [principles/software-principles.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/software-principles.md)
 - [principles/code-anti-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/code-anti-patterns.md)
 
-Two of these contain explicit placeholders, which makes them the highest priority.
+The highest-risk structural problems from `main` have been repaired on `playbook-recovery`, but these files still deserve continuity review because they experienced large rewrites.
 
 ## Current Confidence By Area
 
@@ -72,22 +77,21 @@ These documents appear materially present and do not contain obvious placeholder
 - [architecture/frontend/micro-frontend-canvas-architecture.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/architecture/frontend/micro-frontend-canvas-architecture.md)
 - [patterns/error-handling-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/patterns/error-handling-patterns.md)
 - [patterns/strategic-design-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/patterns/strategic-design-patterns.md)
+- [principles/software-principles.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/software-principles.md)
+- [principles/code-anti-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/code-anti-patterns.md)
+- [standards/micro-frontend-ownership-standard.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/standards/micro-frontend-ownership-standard.md)
 
 These look substantial, but some should still have link and consistency checks.
 
 ### Low confidence
 
-- [standards/micro-frontend-ownership-standard.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/standards/micro-frontend-ownership-standard.md)
-- [principles/software-principles.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/software-principles.md)
-- [principles/code-anti-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/code-anti-patterns.md)
-
-These should be considered incomplete until reconstructed from history.
+- No files are currently in the low-confidence bucket on `playbook-recovery` based on the structural audit alone.
 
 ## Reconstruction Order
 
-1. Rebuild the incomplete or placeholder-based files from git history before adding new doctrine.
-2. Fix stale references so the playbook points at the files that actually exist.
-3. Review reduced or heavily rewritten documents against earlier revisions and decide whether missing sections should be restored.
+1. Review the reconstructed doctrine files for semantic alignment and wording quality.
+2. Review reduced or heavily rewritten documents against earlier revisions and decide whether missing sections should be restored.
+3. Commit the recovery branch changes as a recovery checkpoint.
 4. Only after the baseline is stable, continue with new enhancements.
 
 ## Operating Rule From This Point

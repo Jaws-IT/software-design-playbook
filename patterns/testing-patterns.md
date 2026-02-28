@@ -217,4 +217,4 @@ Implementation may evolve.
 
 ---
 
-*Related files: 01-principles.md, 02-code-rules.md, 03-anti-patterns.md, 05-clean-code-formatting.md*
+*Related files: principles/software-principles.md, principles/code-rules.md, principles/code-anti-patterns.md, standards/clean-code-formatting.md*

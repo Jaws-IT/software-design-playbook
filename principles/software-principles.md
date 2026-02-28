@@ -26,7 +26,34 @@ Includes Clean Code Integration
 
 ### Tell (so that others) Don't (need to) Ask
 
-[Previous content remains the same]
+Tell objects what to do. Do not extract internal state in order to decide business behavior somewhere else.
+
+Good domain design keeps decisions near the invariants they depend on.
+
+Prefer:
+
+- `booking.confirm()`
+- `claim.attachDocument(document)`
+- `account.withdraw(amount)`
+
+Avoid:
+
+- `if (booking.isConfirmable()) { ... }`
+- `if (claim.documents().size < 3) { ... }`
+- `if (account.balance() >= amount) { ... }`
+
+If outside code must inspect internal state to decide what should happen,
+behavior has leaked out of the model.
+
+Tell-style APIs preserve:
+
+- invariant ownership
+- boundary clarity
+- lower coupling
+- intention-revealing code
+
+When information must cross a boundary for read models, reporting, or integration,
+return dedicated projections or DTOs rather than exposing domain internals for orchestration.
 
 ---
 
@@ -64,6 +91,46 @@ fun withdrawMoney(amount: Money): Either<InsufficientFunds, Account>
 
 Use searchable names for anything referenced multiple times.  
 Single-letter variables are allowed only for short loop counters.
+
+---
+
+### Avoid Meaningless Suffixes
+
+Names such as `Manager`, `Handler`, `Processor`, `Helper`, and `Util`
+usually hide missing domain language.
+
+If a type needs one of these suffixes, stop and ask:
+
+- what business responsibility it actually owns
+- what decision it makes
+- what role it plays in the domain
+
+Prefer names that reveal purpose:
+
+- `CapacityPolicy` instead of `CapacityManager`
+- `BookingConfirmation` instead of `BookingProcessor`
+- `ClaimAttachmentService` only if it is truly an application service
+
+Generic suffixes are acceptable only for technical infrastructure roles
+when the role is genuinely technical and widely understood.
+
+---
+
+### Explicit Over Implicit
+
+Code should reveal business intent directly.
+
+Prefer:
+
+- explicit types over raw strings and maps
+- explicit failure models over hidden exceptions
+- explicit transitions over boolean state flags
+- explicit boundaries over convenience shortcuts
+
+Avoid clever compression that makes the reader infer domain meaning from implementation details.
+
+If the design forces the reader to reverse-engineer intent,
+the code is too implicit.
 
 ---
 
@@ -230,6 +297,30 @@ Prefer designs that survive growth.
 
 ---
 
+### Interface Discovery Through Usage
+
+Design APIs from the caller's perspective, not from the implementer's internal structure.
+
+An interface is good when the required operation reads naturally at the call site.
+
+Bad interface design often starts by exposing raw data and expecting callers to assemble behavior themselves.
+
+Prefer:
+
+- `availability.reserve(slot)`
+- `payment.capture(command)`
+- `identityRegistry.register(identity)`
+
+Avoid:
+
+- `availability.getSlots()` followed by external selection logic
+- `payment.getStatus()` followed by branching that performs business decisions elsewhere
+- generic parameter bags that force callers to know too much
+
+Usage should make the correct path easy and the incorrect path awkward.
+
+---
+
 ### Make Errors Explicit and Illegal States Impossible
 
 Expected business errors → Either / Result types
@@ -251,3 +342,11 @@ throw SystemException("Database unavailable", e)
 }
 
 Use the type system to eliminate illegal states.
+
+---
+
+Related files:
+[principles/code-rules.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/code-rules.md)  
+[principles/code-anti-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/code-anti-patterns.md)  
+[patterns/testing-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/patterns/testing-patterns.md)  
+[standards/clean-code-formatting.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/standards/clean-code-formatting.md)
