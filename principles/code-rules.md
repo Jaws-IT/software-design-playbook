@@ -1,7 +1,7 @@
 # Code Rules
 
-Version: 2.2  
-Last Updated: February 27, 2026  
+Version: 2.3  
+Last Updated: February 28, 2026  
 Status: Authoritative  
 Scope: All bounded contexts  
 Applies to: Domain, Application, Integration, Infrastructure
@@ -126,7 +126,97 @@ Intent must be explicit.
 
 ---
 
-# 7. No Framework Annotations in Domain
+# 7. Command Query Separation
+
+Functions SHOULD either:
+
+- perform a state-changing action
+- answer a question
+
+They SHOULD NOT do both in one operation unless the returned value is the explicit result of the command itself.
+
+Forbidden patterns:
+
+- query methods with hidden mutation
+- setter-style commands that also return unrelated derived data
+- methods whose naming suggests a read but performs a write
+
+Allowed patterns:
+
+- `loadCustomer(id): Either<Error, Customer>`
+- `confirmBooking(command): Either<BookingError, BookingConfirmed>`
+- `withUpdatedAddress(address): Customer`
+
+Avoid APIs that force readers to guess whether an operation is interrogating or mutating state.
+
+---
+
+# 8. Function Arity Discipline
+
+Prefer:
+
+- zero-argument queries when context is already held
+- one-argument operations
+- two-argument operations only when the pair is natural
+
+Three arguments SHOULD trigger a design review.
+
+Four or more arguments SHOULD be replaced by:
+
+- a command object
+- a value object
+- a builder
+- a more intention-revealing intermediate type
+
+Flag arguments are forbidden.
+
+Boolean parameters that switch behavior usually indicate that one function is doing multiple things.
+
+---
+
+# 9. WET Before Premature DRY
+
+Do not abstract merely because code looks similar once.
+
+Duplication becomes a real abstraction candidate only when:
+
+- the duplicated behavior is semantically the same
+- the duplication is stable
+- the abstraction reduces complexity instead of moving it
+
+Prefer a small amount of obvious duplication over a premature shared abstraction that leaks accidental complexity across contexts or layers.
+
+This rule protects:
+
+- semantic clarity
+- bounded context independence
+- easier refactoring
+
+Abstraction must earn its keep.
+
+---
+
+# 10. Single Log Point
+
+The same failure SHOULD be logged once at the boundary that owns the final handling decision.
+
+Forbidden patterns:
+
+- log and rethrow
+- logging the same recoverable failure at every layer
+- logging expected business-rule failures deep inside the domain
+
+Preferred behavior:
+
+- domain returns explicit errors
+- application translates or propagates explicit errors
+- infrastructure or outer entrypoints log terminal failures with context
+
+Logs should add operational value, not duplicate noise.
+
+---
+
+# 11. No Framework Annotations in Domain
 
 Domain MUST NOT contain:
 
@@ -141,7 +231,7 @@ Annotations belong in infrastructure.
 
 ---
 
-# 8. No Hidden Coupling
+# 12. No Hidden Coupling
 
 Domain code MUST NOT:
 
@@ -153,7 +243,7 @@ Cross-context interaction occurs only through integration layer.
 
 ---
 
-# 9. No Layer Leakage
+# 13. No Layer Leakage
 
 Application MUST NOT:
 
@@ -173,7 +263,7 @@ Infrastructure MUST NOT:
 
 ---
 
-# 10. Deterministic Return Types
+# 14. Deterministic Return Types
 
 If a method can fail due to business rules, it MUST return Either.
 
@@ -183,7 +273,7 @@ Implicit failure is forbidden.
 
 ---
 
-# 11. Streaming Discipline for Potentially Large Sequences
+# 15. Streaming Discipline for Potentially Large Sequences
 
 When a method may produce a potentially large or conceptually unbounded sequence,
 it SHOULD favor streaming over eager materialization.
@@ -206,7 +296,7 @@ Architecture must survive growth.
 
 ---
 
-# 12. No Interrogative Invariant Exposure (CRITICAL)
+# 16. No Interrogative Invariant Exposure (CRITICAL)
 
 Aggregates MUST NOT expose public boolean or primitive state queries
 that derive invariant logic from internal collections or internal state.
