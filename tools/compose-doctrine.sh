@@ -10,7 +10,7 @@ cat \
   "$ROOT_DIR/structure/bounded-context-module-structure.md" \
   "$ROOT_DIR/standards/architecture-enforcement-spec.md" \
   "$ROOT_DIR/principles/code-rules.md" \
-  "$ROOT_DIR/standards/repair-governance-spec.md" \
+  "$ROOT_DIR/structure/repair-governance-spec.md" \
   > "$DOCTRINE_FILE"
 
 echo "$DOCTRINE_FILE"

@@ -16,41 +16,41 @@
 - **What to Test Where** - Business behavior, adapter contracts, production reliability
 - **When to Use Platform BC** - Caching and composition as infrastructure concerns
 - **Coupling vs Compute Trade-offs** - Hidden organizational costs vs visible infrastructure costs
-- **Strategic Design Validation** - Apply mental models from 09-strategic-design-patterns.md
+- **Strategic Design Validation** - Apply mental models from patterns/strategic-design-patterns.md
 
 ---
 
 ## Architectural Decision Process
 
-Before committing to any architectural decision, validate it using the strategic design patterns from **09-strategic-design-patterns.md**:
+Before committing to any architectural decision, validate it using the strategic design patterns from **patterns/strategic-design-patterns.md**:
 
 ### The Validation Checklist
 
 Every architectural decision should pass these validation tests:
 
-1. **Extremefy** (09-strategic-design-patterns.md)
+1. **Extremefy** (patterns/strategic-design-patterns.md)
    - What happens with 1000x more load/data/concurrency?
    - Does the design break? Is that acceptable?
    - Example: Sequential processing of 10 items works; 1000 items reveals bottleneck
 
-2. **Complexity Must Earn Its Keep** (09-strategic-design-patterns.md)
+2. **Complexity Must Earn Its Keep** (patterns/strategic-design-patterns.md)
    - Can you explain the benefit in one sentence?
    - Have you measured the problem this complexity solves?
    - Would simpler code work?
    - Example: Caching adds complexity - is latency actually a measured problem?
 
-3. **Aggregate Transaction Boundary** (09-strategic-design-patterns.md)
+3. **Aggregate Transaction Boundary** (patterns/strategic-design-patterns.md)
    - Are multiple aggregates updated in one transaction?
    - Do they share invariants that require atomic updates?
    - Should this be a saga instead?
    - Example: Order + Payment + Inventory in one transaction = coupling
 
-4. **Validation Belongs in Operations** (09-strategic-design-patterns.md)
+4. **Validation Belongs in Operations** (patterns/strategic-design-patterns.md)
    - Is validation separate from state-changing operation?
    - What is the validation FOR?
    - Can race conditions occur between validate and create?
 
-5. **Clock Abstraction** (09-strategic-design-patterns.md)
+5. **Clock Abstraction** (patterns/strategic-design-patterns.md)
    - Does business logic depend on `Instant.now()`?
    - Is this making tests non-deterministic?
    - Should time be injected as a Clock dependency?
@@ -832,7 +832,7 @@ class ArrangementViewService {
 3. Measure actual performance impact
 4. Optimize only when evidence demands it
 5. Prefer coupling cost over compute cost
-6. **Validate using strategic design patterns** (see 09-strategic-design-patterns.md)
+6. **Validate using strategic design patterns** (see patterns/strategic-design-patterns.md)
 
 **Remember**: 
 - Coupling costs are invisible but dominant
@@ -1021,8 +1021,8 @@ Verdict: Coupling cost is 100x+ higher than compute cost savings.
 ## Next Steps
 
 For the mental models and validation techniques referenced in this document, see:
-- **09-strategic-design-patterns.md** - Extremefy, Complexity Test, Aggregate Transaction Boundary, and other strategic thinking patterns
+- **patterns/strategic-design-patterns.md** - Extremefy, Complexity Test, Aggregate Transaction Boundary, and other strategic thinking patterns
 
 ---
 
-*Related files: 01-principles.md, 02-code-rules.md, 03-anti-patterns.md, 04-testing-patterns.md, 06-error-handling-patterns.md, 07-competency-by-level.md, 09-strategic-design-patterns.md*
+*Related files: principles/software-principles.md, principles/code-rules.md, principles/code-anti-patterns.md, patterns/testing-patterns.md, patterns/error-handling-patterns.md, patterns/strategic-design-patterns.md*

@@ -866,4 +866,4 @@ Before approving any design, ask:
 
 ---
 
-*Related files: 01-principles.md, 02-code-rules.md, 08-architectural-decision-patterns.md*
+*Related files: principles/software-principles.md, principles/code-rules.md, patterns/architectural-decision-patterns.md*
