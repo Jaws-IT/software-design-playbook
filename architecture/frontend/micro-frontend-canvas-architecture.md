@@ -1,55 +1,43 @@
-# Micro-Frontend Canvas Architecture
+# Micro-Frontend Canvas Architecture Pattern
 
-Status: Pattern  
-Category: Architectural Pattern  
-Scope: Graphical / Interactive Frontend Systems
+Status: Optional Architectural Pattern  
+Scope: UI-based systems  
+Enforcement Level: Advisory (Not globally enforced)
 
-This document describes a canvas-based micro-frontend architecture.
+---
 
-It is optional.  
-It should be applied only when domain boundaries justify UI separation.
+## Intent
+
+Define a compositional UI architecture where:
+
+- The system serves a single structural shell
+- Navigation activates capabilities rather than loading pages
+- UI responsibilities are explicitly separated
+- State flows forward in alignment with functional programming principles
+- Browser history is centralized
+- Micro-frontends remain isolated and self-contained
+
+This pattern applies only when building graphical user interfaces.  
+It is not required for API-only or non-visual systems.
 
 ---
 
 # 1. Core Principle
 
-A UI system should not be modeled as "pages".
+## Canvas-Based Shell, Not Pages
 
-It should be modeled as:
+The system does not serve multiple document-centric pages.
 
-- One Shell
-- Multiple Canvases (render targets)
-- Micro-frontends activated inside canvases
+It serves one structural shell that contains render targets ("canvases").
 
-Navigation is not page transition.
+Navigation is the act of activating a capability inside a canvas.
 
-Navigation is activation of a capability inside a canvas.
+Conceptually:
 
----
+- Shell = Layout + Canvas orchestration
+- Micro-Frontend = Self-contained capability rendered inside a canvas
 
-# 2. Shell Model
-
-The Shell is responsible for:
-
-- Canvas layout
-- Canvas registration
-- Micro-frontend manifest
-- Initial canvas state
-- URL-to-canvas resolution
-- Browser history management
-- Activation routing
-
-The Shell is structural.
-
-The Shell contains no business behavior.
-
----
-
-# 3. Canvas Concept
-
-A Canvas is a named render target.
-
-Examples:
+Example conceptual canvases:
 
 - NAV
 - MAIN
@@ -57,176 +45,245 @@ Examples:
 - MODAL
 - TOAST
 
-A canvas defines where a micro-frontend renders.
-
-A canvas does not define what renders.
+These are render targets, not routing destinations.
 
 ---
 
-# 4. Micro-Frontend Ownership Model
+# 2. Ownership Model
+
+Clear ownership boundaries are mandatory.
+
+## 2.1 Shell Owns
+
+- Structural layout
+- Canvas definitions
+- Initial canvas state
+- Capability registration manifest
+- URL to canvas-state resolution
+- Browser history integration
+- Back button handling
+
+The shell does not:
+
+- Implement domain logic
+- Own widget state
+- Perform business decisions
+
+The shell is orchestration only.
+
+---
+
+## 2.2 Micro-Frontend Owns
 
 Each micro-frontend owns:
 
-- Its trigger UI
-- Its content UI
-- Its internal state
-- Its internal navigation
-- Its real-time updates
-- Its forward state transitions
+- Its trigger UI (button, menu item, link)
+- Its rendered content
+- All internal UI state transitions
+- Internal multi-step flows
+- Real-time domain connections (e.g., WebSocket)
+- Validation and submission state handling
 
-A micro-frontend owns both its trigger and its content.
+A micro-frontend owns both its activation trigger and its content.
 
-The Shell does not own widget internals.
+The shell does not create trigger UI on behalf of widgets.
 
 ---
 
-# 5. Navigation Model
+# 3. Menu Composition Pattern
+
+The menu is a composition point.
+
+It is not owned by a single component.
+
+Each micro-frontend contributes its own trigger.
+
+The shell composes contributions.
+
+Implications:
+
+- Inversion of control
+- Capability registration model
+- No centralized menu logic
+
+This aligns with strategic plugin composition patterns.
+
+---
+
+# 4. Navigation Model
 
 Navigation means:
 
-    Activate micro-frontend Y in canvas Z
+"Activate micro-frontend X in canvas Y"
 
-Not:
+It does not mean:
 
-    Go to page X
-
-Example flow:
-
-User clicks "My Account"
-→ Shell activates Persona MF in MAIN canvas
-→ Shell pushes history state { main: "persona" }
-
----
-
-# 6. URL as Canvas State Serialization
-
-URLs exist for:
-
-- Bookmarking
-- Deep linking
-- State restoration
-
-They do not imply page existence.
+"Load page X"
 
 Example:
 
-    /my-account
-        → Activate Persona MF in MAIN
+User activates capability  
+→ Shell activates target micro-frontend in MAIN canvas  
+→ Shell pushes serialized canvas state to history
 
-The BFF or routing layer maps path → canvas activation instructions.
+Navigation is canvas state mutation.
 
 ---
 
-# 7. Browser History Discipline
+# 5. URL as Canvas State Serialization
 
-The Shell owns browser history.
+URLs exist for:
 
-When browser back occurs:
+- Bookmarkability
+- Deep linking
+- State restoration
+
+URLs do not represent documents.
+
+They represent canvas activation state.
+
+Example mapping conceptually:
+
+- `/` → MAIN = Landing
+- `/account` → MAIN = Persona widget
+- `/listings` → MAIN = Listings widget
+
+A routing component maps path → canvas activation instructions.
+
+---
+
+# 6. Browser History Ownership
+
+History belongs to the shell.
+
+Widgets do not manipulate browser history.
+
+When the user presses back:
 
 - Shell receives popstate
 - Shell restores previous canvas state
-- Micro-frontend is reactivated
+- Appropriate micro-frontend is activated
 
-Widgets must not implement browser back logic.
+Widgets never "go back".
 
-Widgets move forward only.
-
----
-
-# 8. Forward-Only State Transitions
-
-Widgets should model state explicitly.
-
-Recommended approach:
-
-- Sealed state hierarchy
-- Explicit transition function
-- No implicit state mutation
-- No try/catch control flow
-
-Example (conceptual):
-
-State A + Action X → State B  
-State B + Action Y → State C
-
-Cancel and Undo are forward transitions.
-
-There is no backward state travel.
+They only move forward internally.
 
 ---
 
-# 9. Railway-Style Error Handling
+# 7. Forward-Only State Principle
 
-Widgets should:
+Widget state transitions must be forward-only.
 
-- Avoid exceptions for control flow
-- Use Either / Result types
-- Propagate failure forward
-- Resolve errors explicitly
+No implicit backtracking.
+No try-catch as control flow.
+No hidden jumps.
 
-Error is a state.
+State transitions are explicit.
 
-Error is not a jump.
+Errors are values.
+Transitions are deterministic.
 
----
+This aligns with functional Either / Result modeling.
 
-# 10. Menu as Composition Point
+Example structure:
 
-Menus should not be owned by a single component.
+```
+Initial
+→ ShowingForm
+→ Submitting
+→ Failed
+→ Success
+```
 
-Instead:
-
-- Micro-frontends register their triggers
-- Shell composes contributions
-- Activation mapping remains centralized
-
-This enables plugin-style extensibility.
-
----
-
-# 11. Alignment with Domain Boundaries
-
-Micro-frontend boundaries should mirror bounded context boundaries.
-
-Do not split UI independently from domain ownership.
-
-Each micro-frontend should correspond to a clear capability.
+Retry is a forward transition.
+Cancel is a forward transition.
+Undo is modeled explicitly.
 
 ---
 
-# 12. When to Apply
+# 8. Separation from Backend Links
 
-Use this pattern when:
+Backend-generated links (verification, reset-password, etc.) are independent concerns.
 
-- Multiple domain capabilities expose UI
-- Independent deployment is required
-- Teams own distinct domain areas
-- UI complexity justifies isolation
+They may:
 
-Avoid when:
+- Trigger backend actions
+- Result in new canvas activation
 
-- One small UI
-- Single team ownership
-- Domain separation is artificial
+They are not coupled to canvas design.
+
+Canvas architecture does not constrain backend action endpoints.
 
 ---
 
-# 13. Architectural Characteristics
+# 9. Architectural Constraints (Advisory)
 
-This pattern provides:
+If adopting this pattern:
 
-- UI isolation
-- Deployment flexibility
-- Clear ownership boundaries
-- Forward-only interaction modeling
-- Clean separation of structure and behavior
-
-It does not replace domain-driven design.
-
-It must follow domain boundaries.
-
-Never the reverse.
+- Shell must remain thin
+- Widgets must remain isolated
+- No widget may control another widget’s canvas
+- No cross-widget internal state mutation
+- No direct domain leakage through shell
+- No page-based routing fallback
 
 ---
 
-End of Micro-Frontend Canvas Architecture Pattern
+# 10. When To Use This Pattern
+
+Use when:
+
+- You have multiple independently deployable UI capabilities
+- Teams own separate bounded contexts
+- You want frontend boundaries aligned with backend bounded contexts
+- You need runtime composition
+
+Do not use when:
+
+- The system is simple
+- UI complexity does not justify separation
+- Teams are not independent
+- Deployment separation is unnecessary
+
+---
+
+# 11. Relationship to Backend Bounded Contexts
+
+This pattern works best when:
+
+- Each micro-frontend maps to a backend bounded context
+- Ownership boundaries mirror domain boundaries
+- Widget isolation matches aggregate ownership philosophy
+
+It extends DDD boundaries into the UI layer.
+
+---
+
+# 12. Non-Goals
+
+This pattern does not prescribe:
+
+- Specific UI framework
+- Specific transport layer (HTMX, React, etc.)
+- Specific bundling strategy
+- Specific SSR/CSR approach
+
+It defines responsibility boundaries only.
+
+---
+
+# 13. Enforcement Level
+
+This pattern is advisory.
+
+It should be referenced in:
+
+- architecture-enforcement-spec.md (as optional pattern)
+- strategic design discussions
+- frontend system design sessions
+
+It is not globally mandatory.
+
+---
+
+# End of File
