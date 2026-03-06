@@ -206,9 +206,9 @@ The following are violations of this standard:
 
 This standard complements:
 
-- [architecture/frontend/micro-frontend-canvas-architecture.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/architecture/frontend/micro-frontend-canvas-architecture.md)
-- [standards/architecture-enforcement-spec.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/standards/architecture-enforcement-spec.md)
-- [standards/bounded-context-independence-doctrine.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/standards/bounded-context-independence-doctrine.md)
+- [architecture/frontend/micro-frontend-canvas-architecture.md](architecture/frontend/micro-frontend-canvas-architecture.md)
+- [standards/architecture-enforcement-spec.md](standards/architecture-enforcement-spec.md)
+- [standards/bounded-context-independence-doctrine.md](standards/bounded-context-independence-doctrine.md)
 
 Use this file when the question is ownership.
 Use the architecture pattern when the question is shell and canvas structure.

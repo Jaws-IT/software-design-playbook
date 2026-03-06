@@ -346,7 +346,7 @@ Use the type system to eliminate illegal states.
 ---
 
 Related files:
-[principles/code-rules.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/code-rules.md)  
-[principles/code-anti-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/code-anti-patterns.md)  
-[patterns/testing-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/patterns/testing-patterns.md)  
-[standards/clean-code-formatting.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/standards/clean-code-formatting.md)
+[principles/code-rules.md](principles/code-rules.md)  
+[principles/code-anti-patterns.md](principles/code-anti-patterns.md)  
+[patterns/testing-patterns.md](patterns/testing-patterns.md)  
+[standards/clean-code-formatting.md](standards/clean-code-formatting.md)

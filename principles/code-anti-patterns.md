@@ -472,7 +472,7 @@ Optimization must not compromise architecture.
 ---
 
 Related files:
-[principles/software-principles.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/software-principles.md)  
-[principles/code-rules.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/code-rules.md)  
-[principles/structural-anti-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/principles/structural-anti-patterns.md)  
-[patterns/testing-patterns.md](/Users/jespersorensen/IdeaProjects/jaws-it/software-design-playbook/patterns/testing-patterns.md)
+[principles/software-principles.md](principles/software-principles.md)  
+[principles/code-rules.md](principles/code-rules.md)  
+[principles/structural-anti-patterns.md](principles/structural-anti-patterns.md)  
+[patterns/testing-patterns.md](patterns/testing-patterns.md)
