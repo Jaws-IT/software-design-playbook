@@ -105,6 +105,7 @@ Core principles governing code quality, design, and architecture.
 
 | File | Description |
 |------|-------------|
+| `foundational-principles.md` | Foundational philosophy and design principles: KISS, YAGNI, Dependency Inversion, Open/Closed, Single Responsibility, Fail Fast |
 | `software-principles.md` | 11 core principles: Tell Don't Ask, Intention-Revealing Names, Explicit Over Implicit, etc. |
 | `code-rules.md` | 16 coding rules: Domain Purity, Functional Error Handling, No Anemic Models, etc. |
 | `code-anti-patterns.md` | 32 anti-patterns: god objects, primitive obsession, anemic models, train wreck code |
