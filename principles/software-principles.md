@@ -1,7 +1,7 @@
 # SOFTWARE PRINCIPLES
 
-Version: 2.1  
-Last Updated: January 17, 2026  
+Version: 2.2  
+Last Updated: March 10, 2026  
 Includes Clean Code Integration
 
 ---
@@ -9,6 +9,7 @@ Includes Clean Code Integration
 ## Summary
 
 - Tell Don't Ask — Tell domain objects what to do, do not query their state
+- Process Ownership Near the Domain Model — Keep workflow authority close to the model that owns the rules
 - Intention-Revealing Names and Functions — Names and method signatures reveal true intent
 - Avoid Meaningless Suffixes — No -Manager, -Handler, -Processor suffixes
 - Explicit over Implicit — Clear intent over clever code
@@ -54,6 +55,42 @@ Tell-style APIs preserve:
 
 When information must cross a boundary for read models, reporting, or integration,
 return dedicated projections or DTOs rather than exposing domain internals for orchestration.
+
+---
+
+### Process Ownership Near the Domain Model
+
+Process ownership should live as close to the domain model as possible.
+
+If a process is primarily enforcing the rules, sequencing, or invariants of one domain concept,
+that process belongs with the model that owns those rules.
+
+Keep workflow authority near:
+
+- the aggregate that protects the invariant
+- the policy that decides what may happen
+- the bounded context that is semantically responsible
+
+Do not move process ownership outward merely because multiple steps exist.
+Multiple steps do not automatically justify a detached orchestrator.
+
+Pull process ownership away from the model only when:
+
+- the workflow truly coordinates multiple independent authorities
+- the process has its own cross-context policy
+- the sequencing cannot be owned meaningfully by a single model
+
+When process ownership drifts too far from the domain model:
+
+- invariants become procedural checks
+- authority becomes ambiguous
+- orchestration starts making domain decisions
+- coupling increases across boundaries
+
+The default is simple:
+
+- if the model owns the rule, keep the process there
+- if no single model owns the rule, model the coordination explicitly
 
 ---
 
