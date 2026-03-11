@@ -50,6 +50,13 @@ These constraints are mandatory when implementing or modifying domain code.
 - State transitions must emit domain events.
 - Do not mutate state silently.
 - Domain events represent facts that occurred.
+- Aggregate decision logic should be understood as:
+  - aggregate + command -> domain events
+  - aggregate + domain events -> new aggregate state
+- State is derived from facts; it is not the source of truth.
+- Aggregates must not publish events directly.
+- Aggregates must not depend on repositories, buses, clocks, or external services to decide facts.
+- Application layer loads state, invokes aggregate decision logic, applies emitted events, persists resulting state, and publishes events.
 
 ---
 

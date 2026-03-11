@@ -107,11 +107,15 @@ Public methods MUST express business intent.
 
 Forbidden naming patterns:
 
+- get*() / set*()
 - verify()
 - process()
 - handle()
 - doSomething()
 - util()
+
+Accessor-style methods expose internal state for external decisions.
+Methods should reveal intent, not implementation access patterns.
 
 Allowed examples:
 

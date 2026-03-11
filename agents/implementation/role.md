@@ -147,6 +147,7 @@ Additional languages can be supported by adding their standards to the playbook 
 
 This agent loads the following from the playbook:
 
+- `agents/all-roles.md` — load first; shared rules for every agent
 - `principles/software-principles.md` — core doctrine (shared across all agents)
 - `principles/code-rules.md` — 16 coding rules
 - `principles/code-anti-patterns.md` — 32 anti-patterns to avoid

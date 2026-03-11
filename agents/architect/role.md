@@ -178,6 +178,7 @@ Pause and re-evaluate before continuing.
 
 This agent loads the following from the playbook:
 
+- `agents/all-roles.md` — load first; shared rules for every agent
 - `principles/software-principles.md` — core doctrine (shared across all agents)
 - `principles/structural-anti-patterns.md` — structural violations to detect
 - `architecture/error-handling-model.md` — error classification and handling strategy

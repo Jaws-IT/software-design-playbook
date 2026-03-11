@@ -13,11 +13,13 @@ The domain analyst is the first agent in any project workflow. Its outputs becom
 ## Primary Focus
 
 - Ubiquitous language discovery and documentation
+- Authority and ownership of domain concepts
 - Bounded context identification and boundary validation
 - Aggregate discovery and invariant surfacing
 - Process identification across domain boundaries
 - Detection of premature abstraction and generic modeling
 - Cross-context terminology mapping
+
 
 ---
 
@@ -120,6 +122,7 @@ The goal is to produce a shared understanding that the architect and implementat
 
 This agent loads the following from the playbook:
 
+- `agents/all-roles.md` — load first; shared rules for every agent
 - `principles/software-principles.md` — core doctrine (shared across all agents)
 - `patterns/strategic-design-patterns.md` — mental models for domain reasoning
 - `standards/bounded-context-independence-doctrine.md` — BC autonomy principles
