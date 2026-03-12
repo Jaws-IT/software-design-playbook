@@ -6,7 +6,7 @@ This is a Domain-Driven Design and software architecture documentation repositor
 
 ## `/agents/` — AI Agent Roles and Prompts
 
-AI prompt definitions and role specifications for architecture governance and code generation. Contains three specialized agent roles that form the project workflow pipeline.
+AI prompt definitions and role specifications for architecture governance and code generation. Contains four specialized agent roles that form the project workflow pipeline.
 
 ### `/agents/domain-analyst/`
 
@@ -19,6 +19,13 @@ AI prompt definitions and role specifications for architecture governance and co
 | File | Description |
 |------|-------------|
 | `role.md` | Architect agent: translates domain understanding into architectural decisions, enforces boundaries, manages coupling, defines module structures. Uses mandatory reasoning sequence (ownership → coupling → intention → boundaries → process) |
+
+### `/agents/design/`
+
+| File | Description |
+|------|-------------|
+| `role.md` | DDD Design agent: transition role between domain discovery and architecture. Maps facts to authority, identifies process decisions, defines integration reactions, and clarifies projection ownership before structural design |
+| `fact-modeling-canvas.md` | Lightweight template for modeling facts, authority, reactions, decisions, events, and projections |
 
 ### `/agents/implementation/`
 
