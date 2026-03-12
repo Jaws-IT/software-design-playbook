@@ -16,6 +16,7 @@ Includes Clean Code Integration
 - Make Errors Explicit and Illegal States Impossible — Use type system + proper error handling
 - Objects Hide Data, Expose Behavior — Objects vs data structures distinction
 - Compositional Inside, Semantic at Boundaries — Optimize for composition internally, clarity externally
+- Integration Events Are Irreversible Facts — Publish completed business facts, not transient states
 - Lazy Over Eager When Scale Is Plausible — Prefer lazy composition when sequence size is unknown or potentially large
 - Interface Discovery Through Usage — Design APIs from caller's perspective
 - The Boy Scout Rule — Always leave code cleaner than you found it
@@ -276,6 +277,24 @@ Accidental abstraction occurs when:
 
 Functional power belongs inside.  
 Semantic clarity belongs at boundaries.
+
+---
+
+### Integration Events Are Irreversible Facts
+
+Integration events should represent irreversible business facts.
+
+Publish:
+
+- `PaymentCaptured`
+- `ReservationExpired`
+- `ShipmentDelivered`
+- `CustomerRegistered`
+
+These are facts, not generic states.
+
+Do not publish ambiguous or technical state markers as boundary contracts.
+Cross-context consumers must react to explicit business facts, not infer outcomes from partial lifecycle signals.
 
 ---
 
