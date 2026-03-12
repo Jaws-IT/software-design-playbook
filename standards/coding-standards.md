@@ -142,6 +142,25 @@ data class UserLoggedOn(
 - Integration Events represent business milestones, not internal state changes
 - Other BCs subscribe to Integration Events, never to Domain Events
 
+### Event Fact Typing Convention
+
+Model event meaning explicitly as one of:
+
+- Commitment fact: intent or reservation accepted
+- Outcome fact: final business result became true
+
+Example:
+
+- `SlotReserved` (commitment)
+- `ReservationConfirmed` (outcome)
+
+Enforcement convention:
+
+- Prefer naming-based classification and an event catalog over mandatory folder splits
+- Keep one `events/` location unless scale requires further organization
+- If split is needed, use `events/commitment/` and `events/outcome/` as an optional navigation aid
+- Never require consumers to infer outcomes from commitments; publish explicit outcome facts
+
 ## AndJoin Pattern
 
 The AndJoin pattern is used when multiple conditions must ALL be met to trigger a final event. The conditions can be satisfied in any order - whichever comes last triggers the final event.
@@ -255,6 +274,7 @@ class AuthStateBroadcaster {
 - Events: Past tense (e.g., `IdentityProspectCreated`, `IdentityActivated`)
 - Integration Events: Business milestone language (e.g., `UserLoggedOn`, `IdentityEstablished`)
 - Query: Imperative (e.g., `PresentSignUpActorTypes`)
+- Event semantics: make commitment vs outcome explicit in the event name
 
 ### Test Prefixes
 - Expected values: `expectedEvent`, `expectedResult`

@@ -86,6 +86,7 @@ Only after these checks may implementation structures be proposed.
 - Integration events containing domain internals
 - Authority confusion — multiple contexts making the same decision
 - Cross-context data pulling instead of intent-based collaboration
+- Commitment facts used as implicit outcome facts without explicit outcome publication
 
 ### Process Signals
 - Centralized orchestration without clear ownership

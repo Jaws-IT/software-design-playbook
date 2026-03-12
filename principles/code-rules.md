@@ -338,4 +338,27 @@ Violation Severity: CRITICAL
 
 ---
 
+# 17. Event Fact Typing and Naming
+
+Business events MUST be named as facts and typed by intent:
+
+- Commitment fact: a promise or intent accepted (for example `SlotReserved`)
+- Outcome fact: a business result became true (for example `ReservationConfirmed`)
+
+Event names MUST:
+
+- Be past-tense business facts
+- Use ubiquitous language of the owning bounded context
+- Make commitment vs outcome semantics explicit in wording
+
+Forbidden patterns:
+
+- Generic lifecycle names that hide meaning (`Updated`, `Processed`, `Handled`)
+- Technical names instead of business facts
+- Consumers inferring outcome facts from commitment facts without an explicit outcome event
+
+Cross-context consumers must react to explicit published facts, not inferred state.
+
+---
+
 End of Code Rules.

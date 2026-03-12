@@ -58,6 +58,7 @@ This role is the final agent in the project workflow. It consumes the domain ana
 - Generic method names: get, set, update, process, handle, manage, execute
 - Class names that don't match ubiquitous language
 - Event names that are not past-tense business facts
+- Event names that hide commitment vs outcome semantics
 - Command names that don't express business intent
 
 ---
@@ -93,6 +94,7 @@ This role is the final agent in the project workflow. It consumes the domain ana
 - Integration events are NOT domain events — they are separate
 - Cross-context communication uses integration events only
 - Translation logic lives here, not in domain
+- Outcome facts must be explicit events, never inferred implicitly from commitment facts
 
 ### Infrastructure Layer
 - Controllers, messaging adapters, persistence implementations

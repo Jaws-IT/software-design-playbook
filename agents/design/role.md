@@ -67,6 +67,7 @@ This agent must:
 - Avoid cross-context rule ownership
 - Identify integration events for cross-context reactions
 - Enforce bounded context language at boundaries
+- Classify events as commitment facts or outcome facts
 - Challenge hidden coupling patterns
 
 When a statement appears as:
