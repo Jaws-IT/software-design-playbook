@@ -5,6 +5,11 @@
 **Bounded Context:** [Context Name]  
 **Domain Owner:** [Business stakeholder or team responsible for this domain]
 
+Authoritative file rule:
+
+- This file is the single source of truth for ubiquitous language in this bounded context.
+- Do not maintain a second competing glossary or language document for the same bounded context.
+
 ---
 
 ## Core Domain Concepts

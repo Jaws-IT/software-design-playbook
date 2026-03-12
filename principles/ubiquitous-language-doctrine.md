@@ -30,6 +30,14 @@ Each bounded context owns a distinct vocabulary.
 
 The same term may have different meanings across contexts. This is not a problem — it is expected. What matters is that within each context, the language is consistent and unambiguous.
 
+Each bounded context should maintain exactly one authoritative ubiquitous language document.
+
+Recommended convention:
+
+- `modules/<bounded-context>/docs/UBIQUITOUS-LANGUAGE.md`
+
+Do not split the authoritative vocabulary for one bounded context across multiple competing documents.
+
 ### 3. Business Language, Not Technical Language
 
 Ubiquitous language comes from domain experts, not from developers.
@@ -271,6 +279,9 @@ When ubiquitous language changes:
 2. Document the change reason in a "Changelog" section at the bottom.
 3. Update all affected code, prompts, and architecture documentation.
 4. Never silently rename a concept — always document the evolution.
+
+If a bounded context keeps supplemental language notes, drafts, or workshop artifacts,
+they must point back to the one authoritative ubiquitous language file rather than compete with it.
 
 ### Example Changelog
 
