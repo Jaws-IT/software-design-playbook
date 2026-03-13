@@ -5,8 +5,8 @@
    ```
    Presentation rule:
    - Render this as a standalone banner line at the start of the response.
-   - If terminal styling is supported, use ANSI emphasis so it stands out from surrounding text.
-   - Prefer reverse video (`\x1b[7m`) or bold high-contrast text (`\x1b[1m`) because these remain visible across light and dark terminal backgrounds.
+   - If terminal styling is supported, use explicit ANSI colors so the banner renders consistently across sessions.
+   - Use white text on a blue background for the active agent banner: `\x1b[97;44m`.
    - Reset styling immediately after the banner with `\x1b[0m`.
    - If ANSI styling is not supported, fall back to an uppercase bracketed line:
    ```
@@ -24,5 +24,6 @@
    ```
    Presentation rule:
    - Apply the same standalone banner treatment and ANSI/fallback formatting as the active-agent line.
+   - Use black text on a yellow background for the exit banner: `\x1b[30;43m`.
 
 This rule applies to all operation modes below.
