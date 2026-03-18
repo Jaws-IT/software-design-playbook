@@ -1,6 +1,6 @@
 # ANTI-PATTERNS
 
-*Version: 3.0 | Last Updated: February 27, 2026 | Enhanced with Premature Collection | Eager Materialization*
+*Version: 3.1 | Last Updated: March 17, 2026 | Enhanced with Premature Empty Collection Check*
 
 ## Summary
 
@@ -27,6 +27,7 @@
 - **Mixed Levels of Abstraction** - One function operating at multiple abstraction levels (Clean Code)
 - **Eager Materialization** - Building unnecessary intermediate collections
 - **Premature Collection** - Collecting data when a single-pass pipeline would suffice
+- **Premature Empty Collection Check** - Redundant `isEmpty()` guards before iteration
 - **Domain–Integration Collapse for Performance** - Merging models to “save mapping”
 - **Boundary Violation for Micro-Optimization** - Breaking architecture for perceived speed
 
@@ -441,6 +442,35 @@ Collecting data when only one pass is needed.
         .filter { it.isActive }
         .map { transform(it) }
         .firstOrNull()
+
+---
+
+### Premature Empty Collection Check
+
+Adding explicit empty-collection guards before iteration constructs that already handle empty input.
+
+    // ❌ Redundant guard duplicates natural empty behavior
+    fun execute(items: List<Item>): Result {
+        if (items.isEmpty()) {
+            return Result.empty()
+        }
+        return items.fold(Result.empty()) { acc, item -> process(acc, item) }
+    }
+
+    // ✅ Trust iteration semantics
+    fun execute(items: List<Item>): Result {
+        return items.fold(Result.empty()) { acc, item -> process(acc, item) }
+    }
+
+Why this is an anti-pattern:
+
+- loops, maps, filters, and folds already handle empty collections correctly
+- duplicate guards create duplicate logic across layers
+- guard branches add noise and hide business intent
+- empty-case outcomes are often duplicated, violating DRY
+
+Rule:
+Trust the iteration construct. Do not add `isEmpty()` guards unless the empty case has distinct business semantics that cannot be expressed by the natural iteration result.
 
 ---
 

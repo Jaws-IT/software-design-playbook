@@ -182,10 +182,12 @@ This agent loads the following from the playbook:
 - `agents/all-roles.md` — load first; shared rules for every agent
 - `principles/software-principles.md` — core doctrine (shared across all agents)
 - `principles/structural-anti-patterns.md` — structural violations to detect
+- `principles/domain-leakage-taxonomy.md` — explicit leakage classification and IDs
 - `architecture/error-handling-model.md` — error classification and handling strategy
 - `patterns/architectural-decision-patterns.md` — testing strategy, economics, trade-offs
 - `standards/architecture-enforcement-spec.md` — 17 enforcement rules
 - `standards/bounded-context-independence-doctrine.md` — BC autonomy principles
+- `standards/domain-leakage-severity-standard.md` — leakage severity assignment matrix
 - `structure/project-structure-specification.md` — mandatory project organization
 - `structure/bounded-context-module-structure.md` — module layout per BC
 
@@ -193,6 +195,7 @@ This agent loads the following from the playbook:
 
 - `agents/architect/architectural-integrity-constraints.md`
 - `agents/architect/bounded-context-structure-constraints.md`
+- `agents/architect/detect-domain-leakage.md`
 - `agents/architect/detect-hidden-coupling.md`
 - `agents/architect/system-governance.md`
 

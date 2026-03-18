@@ -287,6 +287,7 @@ Avoid inside domain:
 - map → collect → re-iterate patterns
 - Double traversal of large collections
 - Premature intermediate list construction
+- Redundant `isEmpty()` guards before loops/maps/filters/folds where empty behavior is already naturally correct
 
 Prefer:
 
@@ -295,6 +296,7 @@ Prefer:
 - Compositional flow
 
 Streaming is not mandatory for clearly bounded small collections.
+Only use explicit empty guards when empty input has distinct business semantics that differ from natural iteration outcomes.
 
 Architecture must survive growth.
 

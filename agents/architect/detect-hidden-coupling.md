@@ -13,6 +13,15 @@ It focuses on coupling that is not immediately visible in code structure but eme
 - synchronous dependency chains
 - authority leakage
 
+## Classification Requirement
+
+When this prompt produces a finding that matches domain leakage taxonomy patterns, the finding must include:
+
+- taxonomy ID from `principles/domain-leakage-taxonomy.md`
+- severity assignment from `standards/domain-leakage-severity-standard.md`
+
+This keeps hidden-coupling findings traceable across reviews.
+
 ## Why This Matters
 
 Loose coupling is fundamentally about risk management.
