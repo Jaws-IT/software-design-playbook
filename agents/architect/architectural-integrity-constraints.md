@@ -1,5 +1,7 @@
 # Architectural Integrity Constraints
 
+Version: 1.0.0
+
 This document defines non-negotiable architectural rules.
 
 These constraints override convenience and local optimizations.

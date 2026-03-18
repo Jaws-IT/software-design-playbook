@@ -1,5 +1,7 @@
 # Prompt: Review Bounded Context Design
 
+Version: 1.0.0
+
 ## Goal
 Evaluate whether the proposed or existing bounded contexts reflect real differences in language, rules, and models, and identify risks related to coupling, leakage, or artificial boundaries.
 

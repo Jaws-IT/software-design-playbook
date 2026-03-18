@@ -1,5 +1,7 @@
 # Structural Anti Patterns
 
+Version: 1.0.0
+
 This document defines structural and modeling anti-patterns that violate architectural integrity.
 
 These are not stylistic disagreements.

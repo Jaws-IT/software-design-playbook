@@ -1,5 +1,7 @@
 # Prompt: Process Modeling Facilitator
 
+Version: 1.0.0
+
 ## Goal
 
 Help teams reason about business processes across bounded contexts and determine:

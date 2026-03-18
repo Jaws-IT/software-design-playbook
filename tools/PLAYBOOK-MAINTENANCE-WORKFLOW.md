@@ -1,5 +1,7 @@
 # Playbook Maintenance Workflow
 
+Version: 1.0.0
+
 Date: February 28, 2026
 
 ## Goal

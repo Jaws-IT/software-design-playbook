@@ -1,5 +1,7 @@
 # Prompt: Domain Discovery Facilitator
 
+Version: 1.0.0
+
 ## Goal
 
 Help teams move from "programming mode" to "understanding mode" by facilitating domain thinking before design and coding begin.

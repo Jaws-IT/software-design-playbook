@@ -1,5 +1,7 @@
 # Prompt: Detect Generic Modeling
 
+Version: 1.0.0
+
 ## Goal
 
 Identify when domain concepts are modeled too generically, potentially hiding important differences in meaning, rules, and behavior.

@@ -1,6 +1,6 @@
 # CLEAN CODE FORMATTING
 
-*Version: 1.1 | Last Updated: February 27, 2026 | Based on Clean Code Chapter 5*
+*Version: 1.1.0 | Last Updated: February 27, 2026 | Based on Clean Code Chapter 5*
 
 ## Summary
 

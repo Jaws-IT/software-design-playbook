@@ -1,5 +1,7 @@
 # Bounded Context Independence Doctrine
 
+Version: 1.0.0
+
 Status: Authoritative  
 Scope: All bounded contexts  
 Applies to: Structural design, implementation, and testing  

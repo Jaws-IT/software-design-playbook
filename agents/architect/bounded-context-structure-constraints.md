@@ -1,5 +1,7 @@
 # Bounded Context Structure Constraints
 
+Version: 1.0.0
+
 These constraints are mandatory during implementation.
 
 ---

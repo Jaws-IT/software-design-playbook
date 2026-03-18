@@ -1,5 +1,7 @@
 # PROJECT STRUCTURE AND LAYERING SPECIFICATION
 
+Version: 1.0.0
+
 This document defines mandatory structural, layering, dependency,
 and package rules for all modules.
 

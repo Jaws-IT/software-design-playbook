@@ -1,5 +1,7 @@
 # Micro-Frontend Canvas Architecture Pattern
 
+Version: 1.0.0
+
 Status: Optional Architectural Pattern  
 Scope: UI-based systems  
 Enforcement Level: Advisory (Not globally enforced)

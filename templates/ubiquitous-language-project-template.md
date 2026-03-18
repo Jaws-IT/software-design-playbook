@@ -1,6 +1,6 @@
 # Ubiquitous Language — [Project Name]
 
-**Version:** 0.1  
+**Version:** 0.1.0  
 **Last Updated:** [Date]  
 **Bounded Context:** [Context Name]  
 **Domain Owner:** [Business stakeholder or team responsible for this domain]

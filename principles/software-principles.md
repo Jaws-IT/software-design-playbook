@@ -1,6 +1,6 @@
 # SOFTWARE PRINCIPLES
 
-Version: 2.2  
+Version: 2.2.0  
 Last Updated: March 10, 2026  
 Includes Clean Code Integration
 

@@ -1,5 +1,7 @@
 # Prompt: Detect Anemic Domain Model
 
+Version: 1.0.0
+
 ## Goal
 
 Identify when domain models are reduced to data structures with little or no behavior, causing business logic to drift into services, handlers, or utilities.

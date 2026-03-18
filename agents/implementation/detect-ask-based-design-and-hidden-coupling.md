@@ -1,5 +1,7 @@
 # Prompt: Detect Ask-Based Design and Hidden Coupling
 
+Version: 1.0.0
+
 ## Goal
 
 Identify where systems expose data through "get" style interactions instead of expressing intent, leading to hidden coupling and increased risk of failure chaining.

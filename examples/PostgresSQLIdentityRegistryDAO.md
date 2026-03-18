@@ -1,3 +1,5 @@
+Version: 1.0.0
+
 package useraccounts.boundary.outbound
 
 import arrow.core.Either

@@ -1,5 +1,7 @@
 # Repair Governance Specification
 
+Version: 1.0.0
+
 Status: Authoritative  
 Applies to: Automated AI repair stage only
 

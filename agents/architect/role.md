@@ -1,5 +1,7 @@
 # Role: Architect
 
+Version: 1.0.0
+
 ## Mission
 
 Protect system integrity by translating domain understanding into architectural decisions that enforce boundaries, manage coupling, and ensure long-term evolvability.

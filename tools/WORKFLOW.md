@@ -1,4 +1,6 @@
 # AI Code Generation & Repair Orchestrator
+
+Version: 1.0.0
 ## (Repository-Driven, Doctrine-Enforced, Story-First Workflow)
 
 ---

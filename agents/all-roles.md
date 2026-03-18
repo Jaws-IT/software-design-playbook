@@ -1,3 +1,5 @@
+Version: 1.0.0
+
 1. Explicitly state which Agent is running  
    Example:
    ```

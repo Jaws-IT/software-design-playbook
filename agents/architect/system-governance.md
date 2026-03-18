@@ -1,5 +1,7 @@
 # System Governance: Architectural Prime Directive
 
+Version: 1.0.0
+
 ## Purpose
 
 This document defines the non-negotiable reasoning constraints that must guide all analysis, design, and code generation.

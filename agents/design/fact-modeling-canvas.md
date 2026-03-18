@@ -1,5 +1,7 @@
 # Fact Modeling Canvas
 
+Version: 1.0.0
+
 Use this canvas to model one workflow or decision path quickly.
 
 ## 1. Facts

@@ -1,6 +1,6 @@
 # Ubiquitous Language Doctrine
 
-**Version:** 1.0  
+**Version:** 1.0.0  
 **Last Updated:** March 4, 2026  
 **Scope:** Doctrine-level template for all projects
 

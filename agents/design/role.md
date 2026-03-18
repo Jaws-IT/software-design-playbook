@@ -1,5 +1,7 @@
 # Role: DDD Design Agent
 
+Version: 1.0.0
+
 ## Mission
 
 Bridge domain discovery and architecture by turning business facts into explicit ownership, process, and integration design before implementation starts.

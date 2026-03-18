@@ -1,5 +1,7 @@
 # Railway State Transition Pattern
 
+Version: 1.0.0
+
 Status: Pattern  
 Category: Functional Modeling  
 Scope: Domain, Application, UI, Workflow

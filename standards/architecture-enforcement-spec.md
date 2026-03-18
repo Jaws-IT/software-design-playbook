@@ -1,5 +1,7 @@
 # Architecture Enforcement Specification
 
+Version: 1.0.0
+
 Status: Authoritative
 Scope: All bounded contexts inside modules/
 Applies to: CI enforcement, LLM agents, code review

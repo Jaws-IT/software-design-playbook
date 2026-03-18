@@ -1,5 +1,7 @@
 # Coding Standards
 
+Version: 1.0.0
+
 ## Language & Paradigm
 
 - **Language**: Kotlin 2.1.0

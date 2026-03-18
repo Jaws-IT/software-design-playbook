@@ -1,6 +1,6 @@
 # ANTI-PATTERNS
 
-*Version: 3.1 | Last Updated: March 17, 2026 | Enhanced with Premature Empty Collection Check*
+*Version: 3.2.0 | Last Updated: March 18, 2026 | Enhanced with Check-Then-Act Race Condition*
 
 ## Summary
 
@@ -28,6 +28,7 @@
 - **Eager Materialization** - Building unnecessary intermediate collections
 - **Premature Collection** - Collecting data when a single-pass pipeline would suffice
 - **Premature Empty Collection Check** - Redundant `isEmpty()` guards before iteration
+- **Check-Then-Act Race Condition** - Non-atomic condition checks followed by mutation
 - **Domain–Integration Collapse for Performance** - Merging models to “save mapping”
 - **Boundary Violation for Micro-Optimization** - Breaking architecture for perceived speed
 
@@ -471,6 +472,40 @@ Why this is an anti-pattern:
 
 Rule:
 Trust the iteration construct. Do not add `isEmpty()` guards unless the empty case has distinct business semantics that cannot be expressed by the natural iteration result.
+
+---
+
+### Check-Then-Act Race Condition
+
+Separating a state check from the subsequent state mutation when multiple threads/processes can act on the same resource.
+
+    // ❌ Check and mutation are not atomic
+    fun reserve(inventory: Inventory, qty: Int): Either<ReservationError, Inventory> {
+        return if (inventory.available() >= qty) {
+            inventory.reserve(qty)
+        } else {
+            Either.left(ReservationError.InsufficientCapacity)
+        }
+    }
+
+    // ✅ Single atomic domain operation
+    fun reserve(inventory: Inventory, qty: Int): Either<ReservationError, Inventory> {
+        return inventory.reserveIfAvailable(qty)
+    }
+
+Why this is an anti-pattern:
+
+- another actor can modify state between check and mutation
+- invariants can be violated (double-booking, oversell, duplicate processing)
+- race windows are often hidden in otherwise clean code
+
+Rule:
+If correctness depends on a condition and a subsequent state change, enforce atomicity at the ownership boundary using locking, CAS, or transactional constraints.
+
+Severity guidance:
+
+- CRITICAL when invariant integrity can be violated
+- MAJOR when it causes duplicate side effects without invariant breach
 
 ---
 

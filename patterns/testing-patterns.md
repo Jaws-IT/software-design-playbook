@@ -1,6 +1,6 @@
 # TESTING PATTERNS
 
-*Version: 2.1 | Last Updated: February 27, 2026 | Enhanced with Clean Code Testing Practices*
+*Version: 2.1.0 | Last Updated: February 27, 2026 | Enhanced with Clean Code Testing Practices*
 
 ## Summary
 

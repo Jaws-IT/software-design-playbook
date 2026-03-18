@@ -1,5 +1,7 @@
 # Prompt: Detect Hidden Coupling
 
+Version: 1.0.0
+
 ## Goal
 
 Identify hidden forms of coupling across bounded contexts, services, and teams, and explain how these create systemic risk through failure chaining and loss of autonomy.

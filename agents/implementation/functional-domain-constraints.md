@@ -1,5 +1,7 @@
 # Functional Domain Constraints
 
+Version: 1.0.0
+
 These constraints are mandatory when implementing or modifying domain code.
 
 ## Immutability

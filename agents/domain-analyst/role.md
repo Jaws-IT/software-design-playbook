@@ -1,5 +1,7 @@
 # Role: Domain Analyst
 
+Version: 1.0.0
+
 ## Mission
 
 Facilitate domain understanding before design and implementation begin.

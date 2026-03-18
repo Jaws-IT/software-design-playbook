@@ -1,5 +1,7 @@
 # Error Handling as a Cross-Layer Architectural Model
 
+Version: 1.0.0
+
 *A system-level approach to classifying failures and allowing errors to flow through layers using domain abstractions.*
 
 ---

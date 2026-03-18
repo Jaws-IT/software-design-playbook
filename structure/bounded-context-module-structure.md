@@ -1,4 +1,6 @@
-    # PROJECT STRUCTURE AND LAYERING SPECIFICATION
+# PROJECT STRUCTURE AND LAYERING SPECIFICATION
+
+Version: 1.0.0
 
 This document defines the required project structure, layering rules,
 package rules, and dependency constraints.

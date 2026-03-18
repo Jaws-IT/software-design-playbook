@@ -1,6 +1,6 @@
 # FOUNDATIONAL PRINCIPLES
 
-Version: 1.0
+Version: 1.0.0
 Last Updated: March 6, 2026
 Status: Authoritative
 Scope: All layers, all bounded contexts

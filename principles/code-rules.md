@@ -1,7 +1,7 @@
 # Code Rules
 
-Version: 2.3  
-Last Updated: February 28, 2026  
+Version: 2.4.0  
+Last Updated: March 18, 2026  
 Status: Authoritative  
 Scope: All bounded contexts  
 Applies to: Domain, Application, Integration, Infrastructure
@@ -360,6 +360,34 @@ Forbidden patterns:
 - Consumers inferring outcome facts from commitment facts without an explicit outcome event
 
 Cross-context consumers must react to explicit published facts, not inferred state.
+
+---
+
+# 18. Atomic Check-and-Act for Shared State (CRITICAL)
+
+If correctness depends on evaluating a condition and then mutating shared state,
+the evaluation and mutation MUST be atomic at the ownership boundary.
+
+Forbidden patterns:
+
+- `if (canX()) { doX() }` on shared mutable state without atomic guarantees
+- Read-then-write flows that rely on stale snapshots for invariant enforcement
+- Split check and mutation across layers without a transactional/locking/CAS boundary
+
+Required patterns (choose one appropriate mechanism):
+
+- Atomic compare-and-set operations
+- Lock-protected critical sections
+- Database transaction with correct isolation plus constraint enforcement
+- Single-writer serialized command handling
+
+Severity guidance:
+
+- CRITICAL when invariant violations are possible (oversell, double-booking, duplicate commitment)
+- MAJOR when only non-invariant side effects are duplicated
+
+The owning boundary must expose intention-driven atomic operations
+(for example `reserveIfAvailable`) instead of exposing separate check and act primitives.
 
 ---
 

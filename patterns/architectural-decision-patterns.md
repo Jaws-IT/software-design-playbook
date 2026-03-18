@@ -1,6 +1,6 @@
 # ARCHITECTURAL DECISION PATTERNS
 
-*Version: 1.0 | Last Updated: January 22, 2026 | Strategic Decision Framework*
+*Version: 1.0.0 | Last Updated: January 22, 2026 | Strategic Decision Framework*
 
 ## Summary
 

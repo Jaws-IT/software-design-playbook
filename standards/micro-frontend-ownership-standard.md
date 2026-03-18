@@ -1,5 +1,7 @@
 # Micro-Frontend Ownership Standard
 
+Version: 1.0.0
+
 Status: Authoritative for UI systems using micro-frontends  
 Scope: Graphical and interactive frontend systems  
 Applies to: Shell, micro-frontends, menu composition, navigation ownership

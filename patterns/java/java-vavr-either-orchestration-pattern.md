@@ -3,6 +3,8 @@ Scope: Application layer orchestration using Either
 Applies to: Functional-style domain/application services
 # Functional Either Chain Pattern
 
+Version: 1.0.0
+
 A practical workflow for writing clean, functional Java code using vavr's `Either`, `Tuple`, and `flatMap`.
 
 ## Overview

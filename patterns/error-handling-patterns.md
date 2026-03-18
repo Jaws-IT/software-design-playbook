@@ -1,5 +1,7 @@
 # Functional Either Chain Pattern
 
+Version: 1.0.0
+
 Status: Advisory Pattern  
 Scope: Application layer orchestration  
 Applies to: Functional-style Java using Vavr Either, Tuple, and flatMap

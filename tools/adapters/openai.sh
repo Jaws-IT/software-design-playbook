@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Version: 1.0.0
 
 MODEL="$1"
 PROMPT_FILE="$2"

@@ -1,6 +1,6 @@
 # STRATEGIC DESIGN PATTERNS
 
-*Version: 1.0 | Last Updated: January 22, 2026 | Mental Models for Design Validation*
+*Version: 1.0.0 | Last Updated: January 22, 2026 | Mental Models for Design Validation*
 
 ## Summary
 
