@@ -40,7 +40,34 @@ fun createIdentityRegistration(claim: ClaimKey): Either<RegistrationError, Ident
 
 **Reason**: Validation functions with `Unit` return don't add value - they fail the "intention is" test.
 
-### 3. Clock Abstraction for Time
+### 3. Prefer Either on Public Abstractions
+
+```kotlin
+// AVOID - Public repository contract returns absence only
+interface IdentityRepository {
+    fun add(identity: Identity): Option<IdentityError>
+    fun findById(id: IdentityId): Option<Identity>
+}
+
+// PREFERRED - Public contract returns explicit outcome
+interface IdentityRepository {
+    fun add(identity: Identity): Either<IdentityError, Identity>
+    fun findById(id: IdentityId): Either<IdentityError, Identity>
+}
+```
+
+**Guideline**: On outermost abstraction layers such as repository interfaces, domain services, and other public ports, prefer `Either<Error, Success>` over `Option<T>`.
+
+**Reason**: Public methods should express intention and outcome explicitly. `Either` preserves forward business meaning: the operation either succeeds with a meaningful result or returns a meaningful typed failure. `Option` is better kept as an internal modeling tool when presence or absence is only an implementation detail.
+
+**Use `Option` internally when**:
+- Modeling optional intermediate state inside an implementation
+- Representing absence before converting to a typed public outcome
+- Simplifying local transformations where no public business meaning is lost
+
+**Boundary rule**: If an `Option` reaches a public method on a repository or interface, treat that as a design smell and ask whether the caller really needs an explicit success/failure outcome instead.
+
+### 4. Clock Abstraction for Time
 
 ```kotlin
 // BAD - Direct time dependency
@@ -56,7 +83,7 @@ class OrderAggregate(private val clock: Clock) {
 
 All aggregates that capture time must depend on `Clock` interface.
 
-### 4. Value Objects for Domain Primitives
+### 5. Value Objects for Domain Primitives
 
 ```kotlin
 @JvmInline
@@ -70,7 +97,7 @@ value class DisplayName(val value: String) {
 }
 ```
 
-### 5. Sealed Classes for Domain Errors
+### 6. Sealed Classes for Domain Errors
 
 ```kotlin
 sealed class IdentityError : DomainError {
