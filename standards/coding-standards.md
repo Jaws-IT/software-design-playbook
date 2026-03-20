@@ -6,6 +6,7 @@ Version: 1.0.0
 
 - **Language**: Kotlin 2.1.0
 - **Paradigm**: Functional-first with DDD tactical patterns
+- **Style Preference**: Prefer declarative and functional composition over imperative control flow in domain and application logic
 - **Error Handling**: Arrow's `Either<Error, Success>` - never throw exceptions for expected states
 
 ## Core Principles

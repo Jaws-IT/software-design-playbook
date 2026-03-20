@@ -16,6 +16,7 @@ Includes Clean Code Integration
 - Make Errors Explicit and Illegal States Impossible — Use type system + proper error handling
 - Objects Hide Data, Expose Behavior — Objects vs data structures distinction
 - Compositional Inside, Semantic at Boundaries — Optimize for composition internally, clarity externally
+- Prefer Declarative and Functional Style Over Imperative Control Flow — Express transformations and outcomes directly
 - Integration Events Are Irreversible Facts — Publish completed business facts, not transient states
 - Lazy Over Eager When Scale Is Plausible — Prefer lazy composition when sequence size is unknown or potentially large
 - Interface Discovery Through Usage — Design APIs from caller's perspective
@@ -169,6 +170,34 @@ Avoid clever compression that makes the reader infer domain meaning from impleme
 
 If the design forces the reader to reverse-engineer intent,
 the code is too implicit.
+
+---
+
+### Prefer Declarative and Functional Style Over Imperative Control Flow
+
+Default to declarative and functional composition when expressing business logic.
+
+Prefer:
+
+- `map`, `flatMap`, `fold`, and typed composition over step-by-step mutation
+- expression-oriented code over procedural control flow
+- transformations over manual state management
+- explicit outcome types such as `Either` / `Result` over hidden control transfer
+
+Avoid:
+
+- imperative loops when collection combinators express the intent directly
+- manual recursion where `fold` captures the pattern more clearly
+- mutable accumulators for sequential transformations
+- branching-heavy orchestration that obscures the success/failure flow
+
+Imperative code is acceptable when it is clearly simpler for a technical concern, but it is not the default style for domain and application logic.
+
+The preference is straightforward:
+
+- functional style for business logic
+- declarative flow for orchestration
+- imperative style only when it materially improves clarity for low-level mechanics
 
 ---
 
