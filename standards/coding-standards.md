@@ -107,6 +107,20 @@ sealed class IdentityError : DomainError {
 }
 ```
 
+### 7. Prefer Fold for Sequential Failure-Aware Processing
+
+```kotlin
+// AVOID - Manual recursion with explicit termination logic
+private Either<Error, Result> processAll(List<Item> remaining, List<Output> accumulated)
+
+// PREFERRED - Fold with Either accumulator
+private Either<Error, Result> processAll(List<Item> items)
+```
+
+**Guideline**: When processing a collection sequentially where each step can fail and successful steps accumulate into a result, prefer `foldLeft`/`foldRight` with an `Either` accumulator over manual recursion.
+
+**Reason**: Fold handles the empty case naturally, keeps the control flow declarative, and makes failure short-circuiting explicit through `flatMap`.
+
 ## Hexagonal Architecture Layers
 
 ```

@@ -215,7 +215,59 @@ Example:
 
 ---
 
-11. Common Violations
+11. Prefer Fold Over Manual Recursion
+
+When processing a collection sequentially to build an accumulated result with possible failure, prefer `foldLeft` (or `foldRight`) with an `Either` accumulator.
+
+Avoid manual recursion with explicit `isEmpty` / `head` / `tail` control flow.
+
+Anti-pattern:
+
+    private Either<Error, Result> processAll(List<Item> remaining, List<Output> accumulated) {
+        if (remaining.isEmpty()) {
+            return Either.right(new Result(accumulated));
+        }
+
+        Item current = remaining.head();
+        return processOne(current)
+                .flatMap(_ -> processAll(remaining.tail(), accumulated.append(current.id())));
+    }
+
+Problems:
+- Imperative control flow disguised as functional code
+- Manual base-case logic that fold already provides
+- Explicit `head()` / `tail()` decomposition is error-prone
+- Termination reasoning is harder than necessary
+
+Preferred pattern:
+
+    private Either<Error, Result> processAll(List<Item> items) {
+        return items.foldLeft(
+                Either.<Error, List<Output>>right(List.empty()),
+                (acc, item) -> acc.flatMap(outputs ->
+                        processOne(item).map(_ -> outputs.append(item.id()))
+                )
+        ).map(Result::new);
+    }
+
+Benefits:
+- Empty collection handled naturally by the initial accumulator
+- `flatMap` short-circuits on the first `Left`
+- The code describes accumulation, not iteration mechanics
+- No manual recursion or explicit termination logic
+
+Rule:
+- Use `foldLeft` or `foldRight` as the iteration mechanism
+- Use `Either` as the accumulator type when each step can fail
+- Use `flatMap` to chain failure-aware steps
+- Use `map` for the final success-only transformation
+
+This applies when:
+- Each step can fail
+- Failure should stop processing
+- Successful steps accumulate into a final result
+
+12. Common Violations
 
 - Nested blocks instead of flat chain
 - Mutable local variables
@@ -223,11 +275,12 @@ Example:
 - Mixing map and flatMap incorrectly
 - Throwing exceptions instead of returning Either
 - Silent `Option` drops (`forEach`/no-op) for failed command intent
+- Manual recursive `head` / `tail` loops where `foldLeft` would express the flow directly
 - Performing orchestration inside the domain layer
 
 ---
 
-12. Architectural Alignment
+13. Architectural Alignment
 
 This pattern supports:
 - Functional error handling doctrine
