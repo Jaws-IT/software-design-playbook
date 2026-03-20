@@ -124,7 +124,7 @@ The goal is to produce a shared understanding that the architect and implementat
 
 This agent loads the following from the playbook:
 
-- `agents/all-roles.md` — load first; shared rules for every agent
+- `agents/shared-agent-rules.md` — load first; shared rules for every agent
 - `principles/software-principles.md` — core doctrine (shared across all agents)
 - `patterns/strategic-design-patterns.md` — mental models for domain reasoning
 - `standards/bounded-context-independence-doctrine.md` — BC autonomy principles

@@ -147,7 +147,7 @@ Expected reasoning:
 
 This agent loads the following from the playbook:
 
-- `agents/all-roles.md` — load first; shared rules for every agent
+- `agents/shared-agent-rules.md` — load first; shared rules for every agent
 - `principles/software-principles.md` — core doctrine
 - `principles/ubiquitous-language-doctrine.md` — language and boundary vocabulary
 - `standards/bounded-context-independence-doctrine.md` — BC autonomy principles

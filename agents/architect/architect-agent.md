@@ -181,7 +181,7 @@ Pause and re-evaluate before continuing.
 
 This agent loads the following from the playbook:
 
-- `agents/all-roles.md` — load first; shared rules for every agent
+- `agents/shared-agent-rules.md` — load first; shared rules for every agent
 - `principles/software-principles.md` — core doctrine (shared across all agents)
 - `principles/structural-anti-patterns.md` — structural violations to detect
 - `principles/domain-leakage-taxonomy.md` — explicit leakage classification and IDs
