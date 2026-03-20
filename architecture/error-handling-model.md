@@ -1,6 +1,6 @@
 # Error Handling as a Cross-Layer Architectural Model
 
-Version: 1.0.0
+Version: 1.1.0
 
 *A system-level approach to classifying failures and allowing errors to flow through layers using domain abstractions.*
 
@@ -24,6 +24,12 @@ Errors are not only technical events. In many cases, they are domain concepts th
 ## Core Principle
 
 Classify all potential failures into three tiers based on recoverability and business relevance, and allow errors to flow across layers using a shared `DomainError` abstraction without redundant mapping.
+
+Decision ownership rule:
+
+- Callee reports outcome explicitly (success or typed failure)
+- Caller decides handling policy (retry, compensate, surface, abort, alert)
+- Inner layers must not silently swallow command intent failures
 
 ---
 

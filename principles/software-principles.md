@@ -1,7 +1,7 @@
 # SOFTWARE PRINCIPLES
 
-Version: 2.2.0  
-Last Updated: March 10, 2026  
+Version: 2.3.0  
+Last Updated: March 20, 2026  
 Includes Clean Code Integration
 
 ---
@@ -398,6 +398,14 @@ throw SystemException("Database unavailable", e)
 }
 
 Use the type system to eliminate illegal states.
+
+Failure reporting and failure policy are separate concerns:
+
+- Callee reports outcome explicitly (`Either.Left` / `Either.Right`)
+- Caller decides policy (retry, compensate, surface, halt, ignore with intent)
+- Callee must not silently swallow a failed state transition
+
+Short rule: callee reports, caller decides.
 
 ---
 

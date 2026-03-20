@@ -1,7 +1,7 @@
 # FOUNDATIONAL PRINCIPLES
 
-Version: 1.0.0
-Last Updated: March 6, 2026
+Version: 1.1.0
+Last Updated: March 20, 2026
 Status: Authoritative
 Scope: All layers, all bounded contexts
 
@@ -115,6 +115,7 @@ In practice:
 - Validate inputs at system boundaries before processing
 - Use the type system to make illegal states unrepresentable
 - Return explicit errors (Either/Result) for business rule violations
+- Report failure at the point of detection, but keep policy decisions at the call boundary
 - Let unexpected technical failures surface immediately rather than silently corrupting state
 
 Fail fast preserves:

@@ -1,6 +1,6 @@
 # Functional Either Chain Pattern
 
-Version: 1.0.0
+Version: 1.1.0
 
 Status: Advisory Pattern  
 Scope: Application layer orchestration  
@@ -13,6 +13,7 @@ It reinforces:
 - Single-orchestrator methods
 - Flat, readable chains
 - Explicit context propagation
+- Callee reports outcome, caller decides handling policy
 
 This is a tactical implementation pattern.
 It is not a structural enforcement rule.
@@ -221,6 +222,7 @@ Example:
 - Losing context due to scope errors
 - Mixing map and flatMap incorrectly
 - Throwing exceptions instead of returning Either
+- Silent `Option` drops (`forEach`/no-op) for failed command intent
 - Performing orchestration inside the domain layer
 
 ---

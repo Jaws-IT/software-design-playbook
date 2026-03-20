@@ -1,7 +1,7 @@
 # Code Rules
 
-Version: 2.4.0  
-Last Updated: March 18, 2026  
+Version: 2.5.0  
+Last Updated: March 20, 2026  
 Status: Authoritative  
 Scope: All bounded contexts  
 Applies to: Domain, Application, Integration, Infrastructure
@@ -274,6 +274,21 @@ If a method can fail due to business rules, it MUST return Either.
 Void methods that may fail are forbidden.
 
 Implicit failure is forbidden.
+
+The callee MUST report failure; it MUST NOT decide handling policy.
+
+Required:
+
+- Return a typed error to the caller (for example `Either.Left(ResourceNotFound)`)
+- Preserve enough context for caller-side policy decisions
+
+Forbidden:
+
+- Silent no-op on failed state mutation attempts
+- Logging-only handling for business failures in inner layers
+- Throwing runtime exceptions for expected business failures
+
+Handling policy (retry, degrade, abort, alert) belongs to the caller boundary.
 
 ---
 
