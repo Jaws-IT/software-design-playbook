@@ -10,6 +10,7 @@ Includes Clean Code Integration
 
 - Tell Don't Ask — Tell domain objects what to do, do not query their state
 - Process Ownership Near the Domain Model — Keep workflow authority close to the model that owns the rules
+- Capability-Proven Policy Enforcement — Pass proof of satisfied policy without making aggregates evaluate policy
 - Intention-Revealing Names and Functions — Names and method signatures reveal true intent
 - Avoid Meaningless Suffixes — No -Manager, -Handler, -Processor suffixes
 - Explicit over Implicit — Clear intent over clever code
@@ -93,6 +94,45 @@ The default is simple:
 
 - if the model owns the rule, keep the process there
 - if no single model owns the rule, model the coordination explicitly
+
+---
+
+### Capability-Proven Policy Enforcement
+
+Policies and invariants are not the same kind of rule.
+
+Doctrine shorthand:
+
+`Policies produce capabilities, Aggregates require them.`
+
+- Invariants must be enforced inside the aggregate that owns them.
+- Policies decide whether an operation may proceed in a given context.
+- Policies must be enforced before the aggregate is invoked.
+
+When an operation requires prior policy approval, pass a capability object as proof that the policy has already been satisfied.
+
+The capability object exists to express authorized intent at the boundary.
+The aggregate may require that object as a parameter, but it must not evaluate policy by querying external services, other bounded contexts, or orchestration state.
+
+Use this pattern when:
+
+- the policy is owned outside the aggregate
+- the aggregate must not depend on policy evaluation logic
+- the call should make prior authorization explicit in the type signature
+
+Do not:
+
+- add `verify`, `validate`, `isAllowed`, or similar policy checks inside the aggregate
+- make the aggregate call out to repositories, services, other bounded contexts, or clocks just to decide if the policy allows the action
+- expose interrogative methods so callers can perform policy branching on aggregate internals
+
+The intent is simple:
+
+- policy evaluation happens before aggregate invocation
+- capability proves the policy decision already happened
+- aggregate performs the state transition and still protects its own invariants
+
+This keeps policy authority explicit without leaking policy logic into the aggregate.
 
 ---
 

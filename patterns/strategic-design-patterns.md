@@ -694,6 +694,120 @@ class ValidationRules {
 
 ---
 
+## Capability-Based Policy Enforcement
+
+**Principle**: Enforce policies outside the aggregate by requiring a capability object whose presence proves the policy has already been satisfied.
+
+### Intent
+
+An aggregate must not evaluate policy. It may require proof that the policy decision was already made.
+
+### Why
+
+- Aggregates protect invariants, not contextual policy
+- Policy ownership stays outside the aggregate
+- The method signature makes prior authorization explicit
+- The aggregate avoids hidden dependencies on external knowledge
+
+### The Pattern
+
+```kotlin
+// Policy evaluation happens before aggregate invocation
+data class CancellationAuthorized private constructor(val reservationId: ReservationId) {
+    companion object {
+        fun grantedFor(reservationId: ReservationId): CancellationAuthorized =
+            CancellationAuthorized(reservationId)
+    }
+}
+
+class CancellationPolicy {
+    fun authorize(reservation: Reservation, actor: Actor): Either<PolicyError, CancellationAuthorized> =
+        if (actor.canCancel(reservation)) {
+            Either.Right(CancellationAuthorized.grantedFor(reservation.id))
+        } else {
+            Either.Left(PolicyError.CancellationNotAllowed)
+        }
+}
+
+class Reservation(
+    val id: ReservationId,
+    private val status: ReservationStatus
+) {
+    fun cancel(capability: CancellationAuthorized): Either<ReservationError, Reservation> =
+        when {
+            status != ReservationStatus.Active ->
+                Either.Left(ReservationError.NotActive)
+            else ->
+                Either.Right(copy(status = ReservationStatus.Cancelled))
+        }
+}
+```
+
+```kotlin
+// Application/service layer coordinates policy + aggregate
+fun cancelReservation(reservationId: ReservationId, actor: Actor): Either<Error, Reservation> {
+    val reservation = reservationRepository.load(reservationId)
+
+    val capability = cancellationPolicy.authorize(reservation, actor)
+        .mapLeft { Error.Policy(it) }
+        .getOrElse { return Either.Left(it) }
+
+    return reservation.cancel(capability)
+        .mapLeft { Error.Domain(it) }
+}
+```
+
+### Rule
+
+- Policy evaluation produces a capability object
+- The aggregate requires that capability in the command method
+- The aggregate does not perform policy evaluation
+- The aggregate still enforces its own invariants
+
+### What To Avoid
+
+```kotlin
+// ❌ Aggregate evaluates policy directly
+class Reservation {
+    fun cancel(actor: Actor, policy: CancellationPolicy, clock: Clock): Either<ReservationError, Reservation> {
+        if (!policy.isCancellationAllowed(this, actor, clock)) {
+            return Either.Left(ReservationError.NotAllowed)
+        }
+
+        if (status != ReservationStatus.Active) {
+            return Either.Left(ReservationError.NotActive)
+        }
+
+        return Either.Right(copy(status = ReservationStatus.Cancelled))
+    }
+}
+```
+
+This mixes policy authority with invariant protection and leaks external knowledge into the aggregate.
+
+```java
+// ❌ Minimal anti-pattern: aggregate coupled to external policy service
+public Either<ActionError, Aggregate> performAction(Data data, ExternalPolicyService externalService) {
+    if (!externalService.isAllowed(data)) {
+        return Either.left(ActionError.PolicyNotSatisfied);
+    }
+
+    return Either.right(applyAction(data));
+}
+```
+
+This is still wrong even though it does not throw.
+The problem is not only exception style.
+The problem is that the aggregate is evaluating policy by consulting an external dependency.
+
+### Notes
+
+- Capability objects should be intention-revealing, not generic markers
+- The aggregate may require the capability without branching on external policy logic
+- If the aggregate needs data for its own invariant, model that data explicitly as part of the command or domain state rather than hiding it in policy evaluation
+
+---
+
 ## Clock Abstraction for Time Dependencies
 
 **Principle**: Never allow direct time dependencies (`Instant.now()`, `System.currentTimeMillis()`) in domain logic. Depend on a Clock abstraction instead.
