@@ -222,6 +222,8 @@ After generation, perform automated validation against:
 ## 1. Doctrine Rules
 
 - No getters exposing state
+- No aggregate query accessor surfaces for persistence or read-model convenience
+- No warning comments that attempt to justify exposed aggregate state
 - No public "verify"
 - No generic managers
 - No cross-BC direct calls
@@ -243,6 +245,12 @@ After generation, perform automated validation against:
 - Are policies separated?
 - Are commands intention-revealing?
 - Are events past-tense?
+
+## 4. Required Detection Prompts
+
+- `agents/implementation/detect-anemic-domain-model.md`
+- `agents/implementation/detect-ask-based-design-and-hidden-coupling.md`
+- `agents/implementation/detect-aggregate-state-exposure-violations.md`
 
 ---
 

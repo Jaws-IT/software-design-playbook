@@ -20,6 +20,12 @@ This directory contains the canonical agent entrypoints and top-level discovery 
   - Alias: `agents/implementation-agent.md`
   - Canonical: `agents/implementation/implementation-agent.md`
 
+## Implementation detection prompts
+
+- `agents/implementation/detect-anemic-domain-model.md`
+- `agents/implementation/detect-ask-based-design-and-hidden-coupling.md`
+- `agents/implementation/detect-aggregate-state-exposure-violations.md`
+
 ## Shared rules
 
 All agents must load:

@@ -181,6 +181,7 @@ This agent loads the following from the playbook:
 - `agents/implementation/functional-domain-constraints.md`
 - `agents/implementation/detect-anemic-domain-model.md`
 - `agents/implementation/detect-ask-based-design-and-hidden-coupling.md`
+- `agents/implementation/detect-aggregate-state-exposure-violations.md`
 
 ## Project Files to Load
 
