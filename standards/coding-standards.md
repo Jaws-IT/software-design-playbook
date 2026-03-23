@@ -361,6 +361,7 @@ class AuthStateBroadcaster {
 - Aggregate Errors: `{Aggregate}Error` sealed class
 - Commands: Verb-noun (e.g., `CreateIdentityProspect`, `RegisterIdentity`)
 - Events: Past tense (e.g., `IdentityProspectCreated`, `IdentityActivated`)
+- Events: Never use a bare noun as an event name; prefer explicit facts like `AppointmentScheduled` or `AppointmentCreated`
 - Integration Events: Business milestone language (e.g., `UserLoggedOn`, `IdentityEstablished`)
 - Query: Imperative (e.g., `PresentSignUpActorTypes`)
 - Event semantics: make commitment vs outcome explicit in the event name

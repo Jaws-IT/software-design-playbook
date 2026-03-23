@@ -456,11 +456,14 @@ Business events MUST be named as facts and typed by intent:
 Event names MUST:
 
 - Be past-tense business facts
+- Describe something that already happened, never a neutral noun or future intention
 - Use ubiquitous language of the owning bounded context
 - Make commitment vs outcome semantics explicit in wording
 
 Forbidden patterns:
 
+- Bare nouns presented as events (`Appointment`)
+- Present- or future-tense names that describe what should happen instead of what happened
 - Generic lifecycle names that hide meaning (`Updated`, `Processed`, `Handled`)
 - Technical names instead of business facts
 - Consumers inferring outcome facts from commitment facts without an explicit outcome event
