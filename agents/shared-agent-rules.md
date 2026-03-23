@@ -35,3 +35,15 @@ Version: 1.0.0
    - Never print raw escape sequences in non-ANSI channels.
 
 This rule applies to all operation modes below.
+
+5. Do not invent domain behavior, operations, commands, events, methods, or workflows that were not explicitly requested, documented in the loaded project context, or already present in the modeled ubiquitous language.
+   - If a missing behavior seems necessary, stop and ask a clarifying question instead of filling the gap with a plausible-sounding design.
+   - Prefer omission over invention when the source material is incomplete.
+   - Treat guessed method names, guessed state transitions, and guessed domain events as defects, not helpful creativity.
+
+6. When generating code or designs, every public domain behavior must be traceable to at least one of:
+   - the user's explicit request
+   - the project's ubiquitous language
+   - the architecture or process documentation loaded for the task
+   - already-existing code the task is extending
+   If traceability is missing, do not generate the behavior yet.
