@@ -231,7 +231,28 @@ Avoid:
 - mutable accumulators for sequential transformations
 - branching-heavy orchestration that obscures the success/failure flow
 
-Imperative code is acceptable when it is clearly simpler for a technical concern, but it is not the default style for domain and application logic.
+Additional rule for sequential business workflows:
+
+- In domain and application logic, do not model failure flow with imperative `for` / `while` loops that `return` early from inside the loop.
+- Do not use loop-body `return Left(...)` / `return Right(...)` as a control-flow shortcut for business orchestration.
+- When processing a collection where each step can fail, prefer `foldLeft` / `foldRight` with an `Either` / `Result` accumulator.
+- Let the accumulator carry success/failure forward instead of escaping the function from inside the loop.
+
+Preferred:
+
+- `items.foldLeft(Either.right(initial), step)`
+- `stream.map(...).flatMap(...)`
+- explicit typed composition where failure short-circuits through `Either`
+
+Avoid:
+
+- imperative loops with mutable accumulators plus early `return`
+- “glorified goto” failure exits from inside loop bodies
+- procedural control flow disguised as business orchestration
+
+Exception:
+
+- Imperative loops are ONLY acceptable for low-level technical mechanics when functional composition would make the code less clear, but this exception does not apply to business-rule flow in domain or application logic.
 
 The preference is straightforward:
 

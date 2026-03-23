@@ -74,6 +74,30 @@ Domain and application layers must never propagate raw framework exceptions.
 
 ---
 
+# 3.1 Sequential Failure Flow Must Be Functional
+
+In domain/ and application/, sequential workflows that can fail MUST use typed functional composition.
+
+Required:
+
+- Use `Either` / `Result` as the accumulator for multi-step operations
+- Prefer `foldLeft` / `foldRight` when iterating through collections with possible failure
+- Use `flatMap` to short-circuit through explicit failure types
+
+Forbidden:
+
+- `for` / `while` loops with `return Left(...)` or `return Right(...)` inside the loop body
+- mutable accumulation combined with early-return failure exits
+- imperative loop-based orchestration of business success/failure flow
+
+Rationale:
+
+- early returns inside loops obscure the control model
+- `Either`-based folds make success/failure propagation explicit
+- business flow should read as composition, not control jumping
+
+---
+
 # 4. No Anemic Domain Model
 
 Aggregates MUST contain behavior.
