@@ -207,6 +207,30 @@ Rationale:
 
 ---
 
+# 7.2 Relational Persistence Is Not The Default
+
+JPA, Hibernate, and relational databases MUST NOT be introduced by default in generated or proposed designs.
+
+Forbidden:
+
+- selecting PostgreSQL, MySQL, MariaDB, or similar relational infrastructure without an explicit requirement
+- introducing JPA entities or ORM mappings as the assumed persistence model
+- shaping aggregates or repository contracts around relational schema concerns by default
+
+Allowed:
+
+- relational persistence when the user explicitly asks for it
+- relational persistence when audited requirements clearly demand relational constraints, joins, reporting, or interoperability that justify it
+- simple infrastructure adapters that keep persistence decisions behind repository ports
+
+Rationale:
+
+- persistence technology must follow domain needs, not generator habit
+- JPA and relational defaults tend to pull schema and ORM concerns into the model too early
+- unnecessary relational infrastructure increases complexity and narrows design options without proven need
+
+---
+
 # 8. Function Arity Discipline
 
 Prefer:

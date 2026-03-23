@@ -167,6 +167,24 @@ boundary/
     └── persistence/ <- Repository implementations (adapters)
 ```
 
+## Persistence Technology Default
+
+Do not introduce JPA, Hibernate, or a relational database by default.
+
+Prefer:
+- in-memory implementations for tests and early modeling
+- simple persistence adapters that preserve the domain model without ORM-driven shaping
+- non-relational or file/document-style persistence when persistence is needed but relational requirements are not explicit
+
+Avoid:
+- introducing JPA entities, ORM mapping layers, or relational schema design as the default persistence choice
+- designing aggregates around table structure, joins, or ORM lifecycle constraints
+- adding PostgreSQL, MySQL, or similar relational infrastructure unless the requirement is explicit
+
+**Rule**: Relational databases and JPA-style ORM are opt-in only. They may be used when explicitly requested or when relational constraints are a confirmed architectural requirement, not as a generated default.
+
+**Reason**: Defaulting to relational persistence introduces accidental complexity, schema-driven modeling, and framework coupling too early. The domain model and repository ports should drive persistence, not the other way around.
+
 ## Integration Events vs Domain Events
 
 Domain Events are internal to a bounded context and should never cross boundaries. Integration Events are for cross-BC communication and use business language rather than internal domain concepts.
