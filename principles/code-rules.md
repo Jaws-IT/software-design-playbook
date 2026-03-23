@@ -179,6 +179,34 @@ Avoid APIs that force readers to guess whether an operation is interrogating or 
 
 ---
 
+# 7.1 Mutating Repository Ports Must Not Erase Success Semantics
+
+Public repository methods that mutate state MUST return an explicit success value when the post-operation domain result matters.
+
+Forbidden:
+
+- `Either<Error, Unit>` for `add`, `save`, `update`, `create`, or similar mutating repository methods when the updated or persisted aggregate is the natural outcome
+- command ports that preserve typed failure but discard meaningful success state
+- repository contracts that force callers to re-query solely to recover the state just written
+
+Allowed:
+
+- `Either<RepositoryError, Appointment>` for create or update operations on an `AppointmentRepository`
+- `Either<Error, Aggregate>` when persistence may enrich, normalize, or otherwise finalize the returned aggregate
+- `Either<Error, CommandResult>` when the command result is not the aggregate itself but is still the explicit business outcome
+
+Exception:
+
+- `Either<Error, Unit>` is acceptable only when the command truly has no meaningful domain result and returning one would be artificial
+
+Rationale:
+
+- repositories are public ports and must preserve business meaning on both failure and success
+- `Unit` on mutating ports hides outcome semantics and encourages extra lookup calls
+- command/query separation allows commands to return the explicit result of the command itself
+
+---
+
 # 8. Function Arity Discipline
 
 Prefer:

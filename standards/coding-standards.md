@@ -68,7 +68,34 @@ interface IdentityRepository {
 
 **Boundary rule**: If an `Option` reaches a public method on a repository or interface, treat that as a design smell and ask whether the caller really needs an explicit success/failure outcome instead.
 
-### 4. Clock Abstraction for Time
+### 4. Mutating Repository Methods Must Return Meaningful Success Values
+
+```kotlin
+// AVOID - Command succeeds with no semantic result
+interface AppointmentRepository {
+    fun add(appointment: Appointment): Either<RepositoryError, Unit>
+    fun update(appointment: Appointment): Either<RepositoryError, Unit>
+}
+
+// PREFERRED - Command returns the persisted or updated domain result
+interface AppointmentRepository {
+    fun add(appointment: Appointment): Either<RepositoryError, Appointment>
+    fun update(appointment: Appointment): Either<RepositoryError, Appointment>
+}
+```
+
+**Rule**: Public state-changing repository methods MUST return a meaningful success value, not `Unit`, when the operation produces or persists a domain object whose post-operation state matters to the caller.
+
+**Reason**: `Either<Error, Unit>` preserves failure but erases success semantics. On command-style repository ports, success should still carry business meaning: the created aggregate, the updated aggregate, or another explicit command result.
+
+**Use `Either<Error, Unit>` only when**:
+- the operation has no meaningful domain result to return
+- the caller does not need the post-operation state
+- returning the aggregate would be artificial rather than intention-revealing
+
+**Design test**: If the caller would naturally ask "what was created?", "what was updated?", or "what is the new state now?", returning `Unit` is a smell.
+
+### 5. Clock Abstraction for Time
 
 ```kotlin
 // BAD - Direct time dependency
@@ -84,7 +111,7 @@ class OrderAggregate(private val clock: Clock) {
 
 All aggregates that capture time must depend on `Clock` interface.
 
-### 5. Value Objects for Domain Primitives
+### 6. Value Objects for Domain Primitives
 
 ```kotlin
 @JvmInline
@@ -98,7 +125,7 @@ value class DisplayName(val value: String) {
 }
 ```
 
-### 6. Sealed Classes for Domain Errors
+### 7. Sealed Classes for Domain Errors
 
 ```kotlin
 sealed class IdentityError : DomainError {
@@ -108,7 +135,7 @@ sealed class IdentityError : DomainError {
 }
 ```
 
-### 7. Prefer Fold for Sequential Failure-Aware Processing
+### 8. Prefer Fold for Sequential Failure-Aware Processing
 
 ```kotlin
 // AVOID - Manual recursion with explicit termination logic
