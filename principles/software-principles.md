@@ -59,6 +59,17 @@ Tell-style APIs preserve:
 When information must cross a boundary for read models, reporting, or integration,
 return dedicated projections or DTOs rather than exposing domain internals for orchestration.
 
+Do not address read-model or persistence needs by adding public query accessors to aggregates
+and then documenting that callers should avoid using them for decisions.
+
+That is still a Tell-Don't-Ask violation. A warning comment does not neutralize the smell.
+
+If state must cross a boundary, prefer one of:
+
+- an explicit snapshot or projection type
+- a dedicated read model on the query side
+- infrastructure-only mapping that does not widen the aggregate's public behavioral API
+
 ---
 
 ### Process Ownership Near the Domain Model
@@ -301,6 +312,12 @@ Objects encapsulate state and expose behavior.
 Data structures expose data and contain no behavior.
 
 Do not create hybrids.
+
+Aggregates must not grow "query accessor" surfaces for repository lookups,
+read models, or query convenience.
+
+If a type owns invariants, expose behavior and keep state hidden.
+If a type mainly exposes state, model it as a DTO, projection, snapshot, or other data structure.
 
 Example (Object):
 

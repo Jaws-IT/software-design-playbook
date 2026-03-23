@@ -110,6 +110,21 @@ The following is forbidden:
 
 Behavior must live where the invariants live.
 
+Aggregates MUST NOT expose public accessor surfaces for persistence support,
+read-model support, repository convenience, or query convenience.
+
+The following are forbidden on aggregates:
+
+- sections named `Query Accessors`, `Read Model Accessors`, or equivalent
+- comments such as "used for read models", "used for repository lookups", or "do not use for decision-making"
+- public zero-argument field-style methods whose primary purpose is exposing aggregate state to external callers
+
+Allowed alternatives:
+
+- explicit snapshot or projection methods returning dedicated read types
+- query-side read models built outside the aggregate
+- infrastructure mapping approaches that do not widen the aggregate's public API
+
 ---
 
 # 5. No Procedural Domain Orchestration
