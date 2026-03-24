@@ -27,6 +27,9 @@ Do not create micro-frontends around layout convenience.
 
 The shell owns structural concerns only.
 
+When a vertical slice uses a BFF-backed shell,
+the BFF is the owner of those shell concerns.
+
 The shell is responsible for:
 
 - canvas layout
@@ -36,6 +39,14 @@ The shell is responsible for:
 - browser history handling
 - manifest registration
 - composition of shared trigger locations such as menus
+
+For vertical slices, this ownership split becomes:
+
+- BFF owns page routes
+- BFF owns page shells/layouts
+- BFF owns navigation
+- BFF owns container composition
+- BFF owns widget inclusion rules
 
 The shell must not own business behavior that belongs to a domain capability.
 

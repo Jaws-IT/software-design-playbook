@@ -65,6 +65,15 @@ Clear ownership boundaries are mandatory.
 - Browser history integration
 - Back button handling
 
+In a vertical slice architecture with a BFF-owned shell,
+this means the BFF owns:
+
+- Page routes
+- Page shells/layouts
+- Navigation
+- Container composition
+- Widget inclusion rules
+
 The shell does not:
 
 - Implement domain logic
