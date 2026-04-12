@@ -197,6 +197,28 @@ Severity: WARNING or HIGH depending on architecture policy
 
 ---
 
+## 10. Centralized or Shared Domain Event Catalog
+
+Anti-pattern:
+- One `domain/events/` folder acts as a common catalog for many aggregates
+- Multiple aggregates emit the same domain event class
+- Domain event names are made generic so several models can reuse them
+- One bounded context imports another bounded context's domain event classes
+
+Why this is harmful:
+Semantic coupling increases.
+Model leakage spreads between aggregates and contexts.
+Authority boundaries blur because events start pretending to be shared truths.
+
+Rule:
+Domain events belong to the aggregate that emits them.
+They stay local to the bounded context.
+Integration events are separate external representations derived from domain events.
+
+Severity: HIGH
+
+---
+
 # Core Principle
 
 Coupling is not inherently bad.

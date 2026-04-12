@@ -1,6 +1,6 @@
 # Coding Standards
 
-Version: 1.0.0
+Version: 1.2.0
 
 ## Language & Paradigm
 
@@ -167,6 +167,58 @@ boundary/
     └── persistence/ <- Repository implementations (adapters)
 ```
 
+## Repository Placement Rule
+
+Repository interfaces live in the domain layer.
+
+They are colocated with the aggregate they manage,
+or in an aggregate-local package directly organized around that aggregate.
+
+They are defined using the ubiquitous language
+of the owning bounded context.
+
+They are not generic or shared.
+
+Implementations live in infrastructure.
+
+Repositories expose intent,
+not generic data access.
+
+Required rules:
+
+- repository interfaces live in the domain layer
+- repository interfaces are colocated with the aggregate they manage
+- repository contracts are defined in ubiquitous language
+- repository contracts are not generic or shared
+- repository implementations live in infrastructure
+- repository methods express business intent, not raw CRUD mechanics
+
+Allowed example:
+
+```kotlin
+interface InvoiceRepository {
+    fun loadInvoice(invoiceId: InvoiceId): Either<RepositoryError, Invoice>
+    fun saveRejectedInvoice(invoice: Invoice): Either<RepositoryError, Invoice>
+}
+```
+
+Avoid:
+
+```kotlin
+interface GenericRepository<T, ID> {
+    fun findById(id: ID): T?
+    fun save(entity: T): T
+}
+```
+
+Putting repositories next to aggregates reinforces authority:
+
+- aggregate owns its behavior
+- aggregate owns its events
+- aggregate defines how it is retrieved
+
+Everything else is an implementation detail around that authority.
+
 ## Persistence Technology Default
 
 Do not introduce JPA, Hibernate, or a relational database by default.
@@ -249,6 +301,58 @@ Enforcement convention:
 - Keep one `events/` location unless scale requires further organization
 - If split is needed, use `events/commitment/` and `events/outcome/` as an optional navigation aid
 - Never require consumers to infer outcomes from commitments; publish explicit outcome facts
+
+### Domain Event Placement Rule
+
+Domain events live inside the bounded context that owns the model.
+
+Within that bounded context,
+domain events live next to the aggregate that emits them,
+or in an aggregate-local package directly organized around that emitter.
+
+Do not create a central domain `events/` folder
+that becomes a shared semantic bucket for unrelated aggregates.
+
+Why:
+
+- a central events folder leads to semantic coupling
+- reusing event classes across aggregates leads to model leakage
+- aggregates emitting shared truths breaks authority boundaries
+
+Required rules:
+
+- domain events live inside the bounded context
+- domain events live next to the aggregate that emits them
+- domain events are not shared across aggregates or contexts
+- domain events express local business facts only
+- integration events are separate representations derived from domain events
+
+Allowed example:
+
+```kotlin
+domain/
+  invoice/
+    Invoice.kt
+    InvoiceRejected.kt
+    InvoiceApproved.kt
+```
+
+Avoid:
+
+```kotlin
+domain/
+  events/
+    Approved.kt
+    Rejected.kt
+    StatusChanged.kt
+```
+
+The aggregate owns the meaning of its domain events.
+Other aggregates and other bounded contexts must not treat them
+as reusable shared truth objects.
+
+If another bounded context needs to react,
+publish a separate integration event through the integration layer.
 
 ## AndJoin Pattern
 

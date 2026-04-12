@@ -1,6 +1,6 @@
 # PROJECT STRUCTURE AND LAYERING SPECIFICATION
 
-Version: 1.0.0
+Version: 1.2.0
 
 This document defines the required project structure, layering rules,
 package rules, and dependency constraints.
@@ -167,6 +167,79 @@ May depend on:
 - integration
 
 Other layers must not depend on infrastructure.
+
+---
+
+# 4A. Domain Event Placement
+
+Internal domain events must stay inside the bounded context
+and be organized with the aggregate that emits them.
+
+Preferred structure:
+
+- `domain/<aggregate>/Aggregate.kt`
+- `domain/<aggregate>/<AggregateEvent>.kt`
+
+Allowed variation:
+
+- `domain/<aggregate>/events/<AggregateEvent>.kt`
+
+Forbidden:
+
+- `domain/events/` as a shared folder for all aggregates
+- generic cross-aggregate event buckets
+- domain event classes reused by multiple aggregates
+- domain event classes imported across bounded contexts
+
+Rationale:
+
+- central event folders create semantic coupling
+- shared event reuse leaks one model into another
+- aggregate-local placement preserves authority boundaries
+
+Domain events express local business facts only.
+They are not shared truths for the whole system.
+
+If information must cross a bounded-context boundary,
+translate the domain event into a separate integration representation
+under `src/main/java/integration/`.
+
+---
+
+# 4B. Repository Placement
+
+Repository interfaces must stay inside the domain layer
+and be organized with the aggregate they manage.
+
+Preferred structure:
+
+- `domain/<aggregate>/Aggregate.kt`
+- `domain/<aggregate>/<Aggregate>Repository.kt`
+
+Allowed variation:
+
+- `domain/<aggregate>/repositories/<Aggregate>Repository.kt`
+
+Infrastructure implementations belong under infrastructure,
+for example:
+
+- `infrastructure/persistence/<Aggregate>RepositoryImpl.kt`
+
+Forbidden:
+
+- `domain/repositories/` as a shared bucket for all aggregates
+- generic repository abstractions reused across unrelated aggregates
+- repository contracts shared across bounded contexts
+- repository interfaces defined in application or infrastructure
+
+Rationale:
+
+- colocated repositories reinforce aggregate authority
+- generic repository reuse weakens ubiquitous language
+- infrastructure implementations are details, not owners of retrieval semantics
+
+Repository contracts must express intent in business language,
+not generic data-access mechanics.
 
 ---
 

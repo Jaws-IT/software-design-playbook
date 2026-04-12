@@ -246,6 +246,37 @@ Rationale:
 
 ---
 
+# 7.3 Repository Ports Belong To The Aggregate They Serve
+
+Repository interfaces MUST live in the domain layer
+and belong to the aggregate they retrieve or persist.
+
+Forbidden:
+
+- generic repositories such as `Repository<T>` or `CrudRepository<T, ID>` as the primary domain port
+- one shared repository contract serving multiple unrelated aggregates
+- repository interfaces named in technical persistence language rather than ubiquitous language
+- repository interfaces defined in infrastructure and pulled inward afterward
+
+Allowed:
+
+- `InvoiceRepository` owned by the invoice aggregate area
+- `loadInvoice(invoiceId)` when the language of the bounded context says invoice
+- `saveRejectedInvoice(invoice)` when the business intent matters
+- infrastructure classes implementing the domain-defined repository contract
+
+Rationale:
+
+- the aggregate owns its behavior
+- the aggregate owns its events
+- the aggregate defines how it is retrieved
+- persistence implementation is an outer detail, not part of domain authority
+
+Repository ports should express intent and business meaning,
+not expose a generic data-access API.
+
+---
+
 # 8. Function Arity Discipline
 
 Prefer:
