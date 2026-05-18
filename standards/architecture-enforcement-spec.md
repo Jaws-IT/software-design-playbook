@@ -3,7 +3,7 @@
 Version: 1.0.0
 
 Status: Authoritative
-Scope: All bounded contexts inside modules/
+Scope: All bounded contexts implemented as modules under modules/
 Applies to: CI enforcement, LLM agents, code review
 
 This document defines:
@@ -12,6 +12,12 @@ This document defines:
 2. Advisory Rules (Non-CI, Review/Agent Enforced)
 
 Only Section 1 rules must fail the build.
+
+Terminology note:
+
+- **Bounded Context (DDD)** is a unit of meaning: ubiquitous language + domain model + policies/invariants.
+- **Module** is our chosen technical packaging for a bounded context in this codebase (what CI can enforce).
+- A bounded context is **not** inherently a deployment unit; whether a module is shipped as a library, a monolith folder, or a microservice is a separate architectural/runtime decision.
 
 ---
 

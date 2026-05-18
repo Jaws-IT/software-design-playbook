@@ -9,6 +9,12 @@ These rules are mandatory and enforceable.
 
 No interpretation or advisory language applies.
 
+Terminology note (to prevent category errors):
+
+- **Bounded Context (DDD)** is a unit of meaning: ubiquitous language + domain model + policies/invariants.
+- **Module** is our chosen technical packaging for a bounded context in this codebase.
+- A bounded context is **not** inherently a deployment unit; whether a module becomes a library, a microservice, or just a monolith module is a separate architectural decision.
+
 ---
 
 # 1. Module Structure
