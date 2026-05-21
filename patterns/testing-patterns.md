@@ -1,12 +1,13 @@
 # TESTING PATTERNS
 
-*Version: 2.1.0 | Last Updated: February 27, 2026 | Enhanced with Clean Code Testing Practices*
+*Version: 2.2.0 | Last Updated: May 21, 2026 | Enhanced with Clean Code Testing Practices*
 
 ## Summary
 
 ### Testing Patterns (DO)
 - **Arrange-Act-Assert (AAA)** - Clear test structure
 - **Test Behavior, Not Implementation** - Focus on observable outcomes
+- **Red-Green-Refactor (Honest Tests)** - Prove the test would have caught the bug
 - **Objects Should Test Themselves** - Self-validating domain objects
 - **Null Object Pattern** - Eliminate null checks in tests
 - **Command Pattern Testing** - Test business operations as objects
@@ -27,6 +28,29 @@
 ---
 
 ## Clean Code Testing Enhancements
+
+### Red-Green-Refactor (Honest Tests)
+
+When fixing a bug or preventing a regression, do not add a test that only passes on your current code.
+Prove the test is *honest* (non-inert) by making it fail against the buggy behavior first.
+
+Discipline:
+
+1. **Red**: reproduce the bug as a failing test (against the pre-fix behavior).
+2. **Green**: implement the smallest fix that makes the test pass.
+3. **Refactor**: clean up without changing behavior; tests stay green.
+
+Why:
+
+- Without the red step, a test can be **inert**: it passes regardless of whether the bug exists.
+- The red step defeats the “I trust my fix” bias by proving the assertion is actually sensitive to the defect.
+
+Practical “non-inert” check (retroactive verification):
+
+- Temporarily revert/disable the fix (or deliberately reintroduce the defect) and confirm the new test goes red.
+- Restore the fix and confirm it goes green again.
+
+If the test does not fail when the fix is removed, the test is not protecting the behavior you think it is.
 
 ### F.I.R.S.T Principles (From Clean Code)
 
