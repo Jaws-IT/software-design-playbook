@@ -1,6 +1,15 @@
 # Coding Standards
 
-Version: 1.2.0
+Version: 1.5.0
+
+Amended 2026-08-26: correlation identity extended from integration events to **every** event and
+to everything arriving at a boundary; `Instant.now()` removed from the event examples, which
+contradicted the injected-clock rule the standards elsewhere require; publication ordering
+documented for the first time.
+
+Amended 2026-08-27: the layer diagram now distinguishes the domain *layer* from the
+`domain/` *region* in the grouped arrangement. Command/query definitions and handlers belong
+to the application layer; the previous diagram incorrectly placed them in `domain/`.
 
 ## Language & Paradigm
 
@@ -10,6 +19,23 @@ Version: 1.2.0
 - **Error Handling**: Arrow's `Either<Error, Success>` - never throw exceptions for expected states
 
 ## Core Principles
+
+### 0. Preserve Existing Interfaces Unless Their Removal Is Explicitly Requested
+
+Removing a class's implementation of an interface does **not** authorize
+removing the interface itself, its contract, or supporting wiring.
+
+If an interface appears to have no remaining implementations or usages after a
+scoped change, report that discovery and ask the user whether it should be
+removed. Do not delete it as inferred dead-code cleanup.
+
+**Rule**: Existing interfaces and abstractions are preserved unless their
+removal is explicitly requested or the user approves removal after the
+interface is identified as unused.
+
+**Reason**: An abstraction can preserve an intentional design boundary,
+extension point, or pending work that is not visible from current references.
+Scope-limited implementation changes must not silently collapse that boundary.
 
 ### 1. No Exceptions for Expected States
 
@@ -97,19 +123,39 @@ interface AppointmentRepository {
 
 ### 5. Clock Abstraction for Time
 
+Never the system clock. Time is always injected, so it can be controlled — set the date to the
+first of January and forecast, replay a month, freeze an instant. Test-driven development depends
+on it.
+
+**But an aggregate does not hold the Clock.** `functional-domain-constraints.md` is explicit that
+an aggregate must not depend on repositories, buses, clocks or external services to decide facts.
+The application layer holds the injected `Clock` and passes time in as a value; the aggregate
+receives an instant, never a source of instants.
+
 ```kotlin
-// BAD - Direct time dependency
-class OrderAggregate {
-    fun placeOrder() = OrderPlaced(Instant.now())
+// BAD — the system clock, in the domain
+class Order {
+    fun place() = OrderPlaced(Instant.now())
 }
 
-// GOOD - Injected clock
-class OrderAggregate(private val clock: Clock) {
-    fun placeOrder() = OrderPlaced(clock.now())
+// ALSO BAD — an injected service inside the aggregate, so the aggregate can decide when "now" is
+class Order(private val clock: Clock) {
+    fun place() = OrderPlaced(clock.now())
+}
+
+// GOOD — the application layer reads the injected Clock and supplies the value
+class Order {
+    fun place(at: Instant) = OrderPlaced(occurredAt = at)
+}
+
+class PlaceOrderHandler(private val clock: Clock) {
+    fun handle(command: PlaceOrder) = order.place(at = clock.now())
 }
 ```
 
-All aggregates that capture time must depend on `Clock` interface.
+*Amended 2026-08-26: the previous "GOOD" example injected a `Clock` into the aggregate, which
+contradicts `functional-domain-constraints.md`. Both files agreed that the system clock is
+forbidden; they disagreed about where the injected one lives. It lives in the application layer.*
 
 ### 6. Value Objects for Domain Primitives
 
@@ -151,21 +197,41 @@ private Either<Error, Result> processAll(List<Item> items)
 
 ## Hexagonal Architecture Layers
 
-```
-domain/              <- Pure business logic, no framework dependencies
-├── aggregates/      <- Aggregate roots and entities
-├── commands/        <- Command definitions and handlers
-├── queries/         <- Query definitions and handlers
-├── events/          <- Domain events
-├── integration/     <- Integration events (for cross-BC communication)
-└── repositories/    <- Repository interfaces (ports)
+Every bounded context has four distinct layers: domain, application,
+integration, and infrastructure. Command/query definitions and their handlers
+belong to the application layer; they never belong to the domain layer.
 
-boundary/
-├── configuration/   <- Module wiring and bootstrap
-└── infrastructure/
-    ├── http/        <- HTTP adapters (routes, views)
-    └── persistence/ <- Repository implementations (adapters)
+Two directory arrangements are permitted:
+
 ```
+# Flat
+domain/              <- Pure business logic, no framework dependencies
+application/         <- Command/query handlers and use-case orchestration
+integration/         <- External contracts and integration events
+infrastructure/      <- HTTP, messaging, persistence, and other adapters
+```
+
+```
+# Grouped (onion)
+configuration/       <- Composition root
+domain/              <- Inward region, not the domain layer itself
+├── aggregates/      <- Domain layer: aggregates, value objects, domain events,
+│                      repository interfaces, and pure business logic
+└── application/     <- Application layer
+    ├── commands/    <- Command definitions and handlers
+    └── queries/     <- Query definitions and handlers
+
+boundary/            <- Outward region
+├── integration/     <- Integration layer: external contracts and integration events
+└── infrastructure/  <- Infrastructure layer: HTTP, messaging, persistence adapters
+```
+
+`domain/` is a region in the grouped arrangement. The domain layer proper is
+`domain/aggregates/`; its name must not be used to justify placing application
+code under `domain/commands/` or `domain/queries/`.
+
+`standards/architecture-enforcement-spec.md` is authoritative for structural
+enforcement, dependency direction, and layer responsibility placement.
 
 ## Repository Placement Rule
 
@@ -246,15 +312,17 @@ Domain Events are internal to a bounded context and should never cross boundarie
 // Use internal identifiers (IdentityId) and internal concepts (Claim, Prospect)
 data class ProspectCreated(
     val identityId: IdentityId,
-    override val eventId: UUID = UUID.randomUUID(),
-    override val occurredAt: Instant = Instant.now()
+    override val correlationId: CorrelationId,
+    override val eventId: EventId,
+    override val occurredAt: Instant          // supplied by the caller from the injected Clock
 ) : DomainEvent
 
 data class IdentityEnrolled(
     val identityId: IdentityId,
     val claimKey: ClaimKey,
-    override val eventId: UUID = UUID.randomUUID(),
-    override val occurredAt: Instant = Instant.now()
+    override val correlationId: CorrelationId,
+    override val eventId: EventId,
+    override val occurredAt: Instant
 ) : DomainEvent
 
 // Integration Events - Cross BC communication, use business language
@@ -262,26 +330,65 @@ data class IdentityEnrolled(
 data class IdentityEstablished(
     val userId: UserId,           // External identifier, not internal IdentityId
     val username: String,         // Business term, not ClaimKey
-    override val correlationId: String,  // For tracing across BCs
-    override val eventId: UUID = UUID.randomUUID(),
-    override val occurredAt: Instant = Instant.now()
+    override val correlationId: CorrelationId,
+    override val eventId: EventId,
+    override val occurredAt: Instant
 ) : IntegrationEvent
 
 data class UserLoggedOn(
     val userId: UserId,
     val displayName: String,
-    override val correlationId: String,
-    override val eventId: UUID = UUID.randomUUID(),
-    override val occurredAt: Instant = Instant.now()
+    override val correlationId: CorrelationId,
+    override val eventId: EventId,
+    override val occurredAt: Instant
 ) : IntegrationEvent
 ```
 
 **Key Differences**:
 - Domain Events use internal identifiers (`IdentityId`, `ClaimKey`)
 - Integration Events use external identifiers (`UserId`, `username`)
-- Integration Events include `correlationId` for cross-BC tracing
+- **Every** event carries a `correlationId` — domain and integration alike. It is not a cross-BC concern only; a trace that starts at the boundary and stops at the domain edge is not a trace
 - Integration Events represent business milestones, not internal state changes
 - Other BCs subscribe to Integration Events, never to Domain Events
+
+**No event stamps its own time.** `occurredAt` is supplied by the caller from the injected
+`Clock`; `Instant.now()` inside an event — including as a default argument — is the system clock
+in the domain, and defeats the control over time that test-driven development depends on. You
+cannot set the date to the first of January and forecast if the event reads the wall.
+
+## Correlation Identity
+
+Every event carries a correlation identity, and so does everything arriving at a boundary —
+HTTP requests, API calls, consumed messages, scheduled triggers.
+
+**Rule**:
+
+- If an inbound request carries a correlation identity, it is **propagated unchanged**.
+- If it does not, one is **minted at the edge** — never deeper.
+- Every event raised while handling that request carries it, domain events included.
+- A consumer that mints a fresh identity for work caused by an inbound fact breaks the trace at
+  exactly the point tracing exists for.
+
+**Reason**: a correlation identity restricted to integration events can only answer "which
+contexts were involved". Carried on domain events too, it answers "what actually happened, in
+what order, because of what" — which is the question asked when something has gone wrong.
+
+## Publication Ordering
+
+An aggregate generates events; it does not publish them. The application layer persists the new
+state and publishes. The **order of those two acts is a decision**, and it must be made
+deliberately rather than fallen into.
+
+**Default: commit, then dispatch.** State is durable before anyone is told about it. Nothing is
+announced that did not happen.
+
+**Alternative: dispatch, then commit.** Chosen when throughput matters more than never losing an
+event — the trade HTTP makes, flooding statelessly for speed and reconciling ordering later. It
+accepts that an event may be published for a commit that then fails.
+
+**Rule**: the choice is recorded per context, or per event where they differ, with the reason.
+Neither is universally correct; what is forbidden is leaving it to whichever the implementer
+happened to write first.
 
 ### Event Fact Typing Convention
 
@@ -499,6 +606,15 @@ class AdvertisementCommandHandler(
 
 ## Event-Driven Design
 
+When a command emits a fact that is supposed to keep UI state, read models,
+or cross-context reactions consistent, implement the reaction in the same slice.
+The command entrypoint and its event listener/projector should be registered together
+by module composition and verified together by tests.
+
+Do not make aggregates aware of listeners, and do not invent local events just
+to satisfy structure. The pairing rule applies only when there is real derived
+state or a real reaction to own.
+
 ```kotlin
 // Aggregate records events
 class Identity private constructor(...) {
@@ -525,6 +641,12 @@ fun handle(command: ActivateIdentity): Either<Error, Identity> {
         }
 }
 ```
+
+Practical guard:
+
+- If a command claims to update event-derived state, its listener/projector must exist.
+- If no listener/projector exists, either the command is incomplete or the state is not truly event-derived.
+- If the event carries no real business fact, remove the event and wire the local dependency explicitly.
 
 ## Module Boundaries
 

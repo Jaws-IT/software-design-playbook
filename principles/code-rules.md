@@ -1,7 +1,7 @@
 # Code Rules
 
-Version: 2.5.0  
-Last Updated: March 20, 2026  
+Version: 2.6.0  
+Last Updated: July 6, 2026  
 Status: Authoritative  
 Scope: All bounded contexts  
 Applies to: Domain, Application, Integration, Infrastructure
@@ -95,6 +95,14 @@ Rationale:
 - early returns inside loops obscure the control model
 - `Either`-based folds make success/failure propagation explicit
 - business flow should read as composition, not control jumping
+
+Smell:
+
+- `fold(ifLeft = { it }, ifRight = { it })` or equivalent identity-branch collapse
+
+When both sides of an `Either` already return the same type, prefer to keep the `Either`
+until the outer boundary, or collapse it with an explicitly named boundary conversion.
+An identity fold hides the decision of where error/success semantics stop mattering.
 
 ---
 
@@ -528,6 +536,45 @@ Severity guidance:
 
 The owning boundary must expose intention-driven atomic operations
 (for example `reserveIfAvailable`) instead of exposing separate check and act primitives.
+
+---
+
+# 19. Event Reaction Pairing for Derived State
+
+When a command emits a business fact that is intended to update derived state,
+the event reaction MUST be implemented as part of the same feature slice.
+
+This applies when the emitted event drives:
+
+- a read model or projection
+- UI-visible state
+- cross-context integration behavior
+- replayable state reconstruction
+
+Required:
+
+- command-side code emits explicit past-tense facts
+- reaction-side code consumes those facts through an event listener, projector, saga, or process policy
+- module composition registers both the command entrypoint and its reaction path
+- tests prove the command emits the fact and the reaction updates the derived state
+
+Forbidden patterns:
+
+- adding a command handler that emits an event while no owned consumer updates the required derived state
+- updating UI/read-model state directly in the command path when the architecture declares it event-derived
+- requiring aggregates to know their listeners
+- inventing fake local events solely to satisfy a structural rule
+
+Exception:
+
+A command may exist without a local event listener when its event is only a local domain fact
+or when no derived state/reaction has been claimed. Do not create a listener before there is
+a real reaction to own.
+
+Rationale:
+
+Event-driven code stays coherent when command facts and their reactions are designed together.
+The command should not be allowed to become the only implemented half of an event-derived workflow.
 
 ---
 

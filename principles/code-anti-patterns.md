@@ -1,6 +1,6 @@
 # ANTI-PATTERNS
 
-*Version: 3.2.0 | Last Updated: March 18, 2026 | Enhanced with Check-Then-Act Race Condition*
+*Version: 3.3.0 | Last Updated: July 6, 2026 | Enhanced with Either Identity Fold Smell*
 
 ## Summary
 
@@ -31,6 +31,7 @@
 - **Check-Then-Act Race Condition** - Non-atomic condition checks followed by mutation
 - **Domain–Integration Collapse for Performance** - Merging models to “save mapping”
 - **Boundary Violation for Micro-Optimization** - Breaking architecture for perceived speed
+- **Either Identity Fold** - Collapsing both sides of `Either` with identical branches
 
 ---
 
@@ -116,6 +117,47 @@ Examples:
 - wrappers that still force callers to know transport details
 
 If the hidden mechanism still leaks into every caller, the abstraction is fake.
+
+---
+
+### Either Identity Fold
+
+Folding an `Either` with identical branches is a code smell.
+
+Example:
+
+```kotlin
+supportedLanguageFor(action)
+    .flatMap { match -> delegateToDomain(action, match) }
+    .fold(
+        ifLeft = { it },
+        ifRight = { it }
+    )
+```
+
+Why this is a smell:
+
+- the code uses `Either` to preserve failure/success meaning, then erases that meaning anonymously
+- the collapse point becomes hidden inside the pipeline
+- readers cannot tell whether this is an intentional adapter boundary or accidental type-shaping
+
+Prefer keeping the `Either` until the outermost boundary.
+If both branches must collapse into one response type, use a named boundary conversion
+or an explicitly meaningful fold.
+
+Allowed at boundaries:
+
+```kotlin
+supportedLanguageFor(action)
+    .flatMap { match -> delegateToDomain(action, match) }
+    .fold(
+        ifLeft = ::renderRejectedAction,
+        ifRight = ::renderAcceptedAction
+    )
+```
+
+If the same value type is truly returned from both sides,
+mark the collapse as a boundary decision rather than hiding it behind identity lambdas.
 
 ---
 

@@ -1,10 +1,12 @@
 # Architecture Enforcement Specification
 
-Version: 1.0.0
+Version: 1.1.0
 
 Status: Authoritative
 Scope: All bounded contexts implemented as modules under modules/
 Applies to: CI enforcement, LLM agents, code review
+
+Amended 2026-08-24 (1.0.0 → 1.1.0): §1 previously mandated four peer directories and forbade `boundary/`. It now permits either a flat or a grouped (onion) arrangement, admits `configuration/` as a composition root, and states that what is enforced is layer identity, dependency direction and responsibility placement — not directory arrangement. Reason: the grouped arrangement expresses the onion's inside/outside split in the tree, and the previous rule enforced vocabulary rather than traceability. §2's prohibitions are correspondingly scoped to the domain *layer* rather than the domain *region*.
 
 This document defines:
 
@@ -27,23 +29,48 @@ Terminology note:
 
 ## 1. Bounded Context Layer Structure
 
-Each bounded context MUST contain exactly four peer directories:
+A bounded context MUST expose four **layers**:
 
-- domain/
-- application/
-- integration/
-- infrastructure/
+- domain
+- application
+- integration
+- infrastructure
 
-Forbidden layer directory names:
+Each layer MUST be a distinct, identifiable directory. Two **arrangements** are permitted, and a project chooses one and records it in its architecture spine:
 
-- boundary/
-- api/
-- adapters/
-- core/
-- impl/
-- services/
+**(a) Flat** — the four layers as peer directories:
 
-Missing required layers is a violation.
+```
+<context>/
+  domain/
+  application/
+  integration/
+  infrastructure/
+```
+
+**(b) Grouped (onion)** — the two inward layers and the two outward layers grouped, which states the onion's inside/outside split in the tree itself:
+
+```
+<context>/
+  configuration/          composition root — assembles the module; see below
+  domain/                 the inward region
+    aggregates/           the domain layer proper
+    application/          the application layer
+    commands/ queries/ readmodels/
+  boundary/               the outward region
+    integration/          the integration layer
+    infrastructure/       the infrastructure layer
+```
+
+Under arrangement (b), `domain/` and `boundary/` are **regions**, not layers. Wherever this specification constrains "the domain layer", it means the domain layer proper — `aggregates/` under (b) — never the whole region.
+
+**`configuration/`** is permitted as a composition root at the module root. It is not a layer: it assembles the module and is what allows the module to stand up independently. No layer may depend on it; it may depend on all of them.
+
+Forbidden layer directory names, under either arrangement: `api/`, `adapters/`, `core/`, `impl/`, `services/`.
+
+Missing a required layer is a violation. Choosing an arrangement is not.
+
+**What is actually enforced** is layer identity, the dependency direction (§3), and responsibility placement (§6) — not the arrangement. Enforce traceability, not vocabulary: an element may sit anywhere it can be traced to its layer.
 
 ---
 
@@ -51,11 +78,13 @@ Missing required layers is a violation.
 
 Forbidden:
 
-- Integration code inside domain/
-- Application code inside domain/
-- Infrastructure code inside domain/
-- Integration code inside infrastructure/
+- Integration code inside the domain layer
+- Application code inside the domain layer
+- Infrastructure code inside the domain layer
+- Integration code inside the infrastructure layer
 - Combining multiple layers into one directory
+
+Under the grouped arrangement, `domain/application/` is the application layer sitting in the domain region — that is the arrangement, not a collapse. A collapse is two layers sharing one directory.
 
 Layer responsibility must be encoded by directory placement.
 

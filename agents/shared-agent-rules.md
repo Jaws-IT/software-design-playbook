@@ -1,4 +1,4 @@
-Version: 1.0.0
+Version: 1.1.0
 
 1. Explicitly state which Agent is running  
    Example:
@@ -47,3 +47,14 @@ This rule applies to all operation modes below.
    - the architecture or process documentation loaded for the task
    - already-existing code the task is extending
    If traceability is missing, do not generate the behavior yet.
+
+7. Do not remove an existing interface, abstraction, contract, or its supporting
+   wiring unless the user explicitly requests its removal.
+   - Removing a type's implementation of an interface authorizes only that
+     implementation change; it does not authorize removing the interface.
+   - An interface with no current implementations or usages is a discovery to
+     report, not implicit authorization to delete it.
+   - State the discovery clearly and ask the user whether the interface should
+     be retained or removed before making that deletion.
+   - Do not reframe a scoped implementation change as an abstraction-removal or
+     dead-code-cleanup task without explicit approval.

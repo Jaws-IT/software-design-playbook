@@ -1,6 +1,8 @@
 # PROJECT STRUCTURE AND LAYERING SPECIFICATION
 
-Version: 1.2.0
+Version: 1.3.0
+
+Amended 2026-08-24: layer *arrangement* (flat or grouped) is now a project choice; `boundary/` is permitted as a grouping directory; `configuration/` is permitted as a composition root; build tool and language are no longer prescribed as Maven/Java. Layer identity, dependency direction and responsibility placement are unchanged and remain enforced.
 
 This document defines the required project structure, layering rules,
 package rules, and dependency constraints.
@@ -19,25 +21,22 @@ Terminology note (to prevent category errors):
 
 # 1. Module Structure
 
-Each module MUST be implemented as a single Maven project.
+Each module MUST be implemented as a single build-tool project — one Maven module or one Gradle subproject. The build tool is not prescribed.
 
 Required layout:
 
 modules/<module-name>/
-pom.xml
+<build file>            pom.xml or build.gradle.kts
 src/
 main/
-java/
-domain/
-application/
-integration/
-infrastructure/
+<language>/             java/ or kotlin/
+{the four layers, in either permitted arrangement — see Required Layer Directories}
 test/
-java/
+<language>/
 
 Forbidden:
 
-- Multiple Maven sub-modules per layer
+- Multiple build sub-modules per layer
 - Separate artifacts for domain/application/integration/infrastructure
 - Custom source directory hacks
 - build-helper plugin to simulate layering
@@ -62,17 +61,17 @@ src/main/java/application/
 src/main/java/integration/
 src/main/java/infrastructure/
 
-Forbidden:
+Two arrangements are permitted — flat (four peers) or grouped, where `domain/` holds the domain and application layers and `boundary/` holds the integration and infrastructure layers. `configuration/` is permitted at the module root as the composition root. See `standards/architecture-enforcement-spec.md` §1.
 
-- boundary/
+Forbidden layer directory names, under either arrangement:
+
 - api/
 - adapters/
 - core/
 - impl/
 - services/
-- Any alternative layer naming
 
-Layer directories must be first-level under src/main/java.
+What is enforced is layer identity, dependency direction and responsibility placement — not the arrangement.
 
 ---
 
@@ -82,11 +81,11 @@ Layer responsibilities must remain isolated.
 
 Forbidden:
 
-- integration code inside domain
-- application code inside domain
+- integration code inside the domain layer
+- application code inside the domain layer
 - infrastructure code inside application
 - integration merged into infrastructure
-- commands or queries inside domain
+- commands or queries inside the domain layer
 - controllers inside domain
 - mixing multiple layers into a single folder
 
